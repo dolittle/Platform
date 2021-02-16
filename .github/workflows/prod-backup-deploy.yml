@@ -1,10 +1,10 @@
-name: Prod - Applications - Deploy
+name: Prod - Backup - Deploy
 
 env:
-  SOURCE_PATH: 'Source/Applications'
-  DEPLOYMENT_NAME: 'prod-applications'
-  DOCKER_IMAGE_TAG: 'dolittle/studio/applications'
-  DOCKER_FILE: 'Source/Applications/Backend/Dockerfile'
+  SOURCE_PATH: 'Source/Backup'
+  DEPLOYMENT_NAME: 'prod-backup'
+  DOCKER_IMAGE_TAG: 'dolittle/platform/backup'
+  DOCKER_FILE: 'Source/Backup/Head/Dockerfile'
 
 on:
   pull_request:
@@ -13,28 +13,8 @@ on:
     types: [closed]
 
 jobs:
-  changes:
+  deploy:
     runs-on: ubuntu-latest
-
-    outputs:
-      has-changes: ${{ steps.filter.outputs.src }}
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          src:
-            - '${{ env.SOURCE_PATH }}/**'
-
-  conditionalDeploy:
-    runs-on: ubuntu-latest
-    needs: changes
-    if: ${{ needs.changes.outputs.has-changes == 'true' }}
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -58,6 +38,6 @@ jobs:
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: DeployMicroservice
-        token: ${{ secrets.PERSONAL_TOKEN }}
+        token: ${{ secrets.BUILD_PAT }}
         ref: ${{ github.event.sha }}
         inputs: '{ "dockerfile":"${{ env.DOCKER_FILE }}", "docker-image-tag":"${{ env.DOCKER_IMAGE_TAG }}", "deployment": "${{ env.DEPLOYMENT_NAME }}", "version": "${{ steps.increment-version.outputs.next-version }}", "source-path": "${{ env.SOURCE_PATH }}" }'
