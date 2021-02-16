@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+  platform-mongo:
+    image: dolittle/mongodb:4.2.2
+    ports:
+      - 27017:27017
+    logging:
+      driver: none
+
+  platform-runtime-backup:
+    image: dolittle/runtime:5.3.5
+    volumes:
+      - ./Backup/resources.json:/app/.dolittle/resources.json
+      - ./tenants.json:/app/.dolittle/tenants.json
+      - ./microservices.json:/app/.dolittle/microservices.json
+      - ./appsettings.json:/app/appsettings.json
+    ports:
+      - 9701:9700
+      - 50052:50052
+      - 50053:50053
+
+

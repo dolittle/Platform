@@ -1,0 +1,39 @@
+name: Build Backup
+
+on:
+  push:
+    branches:
+    - '**'
+    paths:
+    - 'Source/Backup/**'
+
+jobs:
+  ci-ms:
+    name: Build and Test Microservice
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
+    - name: Build
+      working-directory: ./Source/Backup
+      run: dotnet build --configuration Release
+    - name: Test
+      working-directory: ./Source/Backup
+      run: dotnet test --no-build --configuration Release
+
+  ci-cli:
+    name: Build and Test CLI
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+    - name: Build
+      working-directory: ./Source/Backup/CLI
+      run: go build .
+    - name: Test
+      working-directory: ./Source/Backup/CLI
+      run: go test -v ./...
