@@ -3,39 +3,20 @@
 FROM alpine AS dotnet-source
 ARG CONFIGURATION=Release
 WORKDIR /app
-COPY Source ./Source/
-RUN rm -rf Source/ManagementUI
+COPY Source/Backup/ ./Source/
+RUN rm -rf Source/Cli
 
 # DotNet Build
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS dotnet-build
 ARG CONFIGURATION=Release
 WORKDIR /app
-
-COPY default.props ./
-COPY versions.props ./
-COPY Runtime.sln ./
 COPY --from=dotnet-source /app/Source ./Source/
 
-COPY Specifications ./Specifications/
-
-WORKDIR /app/Source/Server
+WORKDIR /app/Source/Head
 RUN dotnet restore
 RUN dotnet publish -c ${CONFIGURATION} -o out
 
-# # Web Build
-# FROM node:13.12 AS web-build
-# WORKDIR /app
-
-# COPY tslint.json ./
-# COPY tsconfig.settings.json ./
-# COPY Source/ManagementUI ./Source/ManagementUI
-
-# WORKDIR /app/Source/ManagementUI
-
-# RUN yarn
-# RUN yarn build
-
-# Runtime Image
+# Image
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 ARG CONFIGURATION=Release
 
@@ -50,11 +31,10 @@ RUN if [ "$CONFIGURATION" = "debug" ] ; then curl -sSL https://aka.ms/getvsdbgsh
 RUN apt-get update && apt-get install -y libc-dev
 
 WORKDIR /app
-COPY --from=dotnet-build /app/Source/Server/out ./
-COPY --from=dotnet-build /app/Source/Server/.dolittle ./.dolittle
-#COPY --from=web-build /app/Source/ManagementUI/wwwroot ./wwwroot
+COPY --from=dotnet-build /app/Source/Head/out ./
 
-EXPOSE 81
-EXPOSE 9700
+EXPOSE 5000
+EXPOSE 5001
+ENV ASPNETCORE_URLS=http://*:5000/
 
-ENTRYPOINT ["dotnet", "Dolittle.Runtime.Server.dll"]
+ENTRYPOINT ["dotnet", "Head.dll"]
