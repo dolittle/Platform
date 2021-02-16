@@ -31,12 +31,12 @@ var startCmd = &cobra.Command{
 			return err
 		}
 
-		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s", backend)
+		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s\n", backend)
 		backupStarted, err := start.CreateBackupStarted(backend)
 		if err != nil {
 			return err
 		}
-		log.Println("Dumping mongo database")
+		log.Printf("Dumping mongo database to %s \n", mongoDump.DumpFilepath)
 		err = mongoDump.Dump()
 		if err != nil {
 			return err
