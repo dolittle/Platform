@@ -3,7 +3,7 @@ name: Dev - Backup - Deploy
 env:
   SOURCE_PATH: 'Source/Backup'
   DEPLOYMENT_NAME: 'dev-backup'
-  DOCKER_IMAGE_TAG: 'dolittle/platform/backup'
+  DOCKER_IMAGE_TAG: 'dolittle/platform-backup'
   DOCKER_FILE: 'Source/Backup/Head/Dockerfile'
 
 on:

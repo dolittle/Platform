@@ -2,7 +2,7 @@ name: Dev - Backup Cli - Deploy
 
 env:
   SOURCE_PATH: 'Source/Backup/Cli'
-  DOCKER_IMAGE_TAG: 'dolittle/platform/backup-cli'
+  DOCKER_IMAGE_TAG: 'dolittle/platform-backup-cli'
   DOCKER_FILE: 'Source/Backup/Cli/Dockerfile'
 
 on:
