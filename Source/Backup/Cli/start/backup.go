@@ -39,12 +39,13 @@ func CreateMongoDump(mongoHost string, dumpDir string) (*mongoDump, error) {
 	}, nil
 }
 
-func createDump(mongoHost string, dumpFilepath string) (*mongodump.MongoDump, error) {
-	toolOptions := options.New("mongodump", "", "", "", true, options.EnabledOptions{URI: true})
-	_, err := toolOptions.ParseArgs([]string{mongoHost})
+func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.MongoDump, error) {
+	toolOptions := options.New("mongodump", "", "", "", true, options.EnabledOptions{Connection: true})
+	_, err := toolOptions.ParseArgs([]string{mongoConnectionString})
 	if err != nil {
 		return nil, err
 	}
+
 	inputOptions := &mongodump.InputOptions{}
 	outputOptions := &mongodump.OutputOptions{
 		Gzip:                   true,

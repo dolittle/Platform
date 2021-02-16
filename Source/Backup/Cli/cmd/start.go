@@ -16,8 +16,8 @@ type startBackupPayload struct {
 }
 
 var (
-	mongoHost string
-	dumpDir   string
+	mongoConnectionString string
+	dumpDir               string
 )
 
 var startCmd = &cobra.Command{
@@ -25,8 +25,8 @@ var startCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		log.Println("Starting backup routine")
-		log.Printf("Initialzing mongo dump with host %s dumping to %s", mongoHost, dumpDir)
-		mongoDump, err := start.CreateMongoDump(mongoHost, dumpDir)
+		log.Printf("Initialzing mongo dump with connection string %s dumping to %s", mongoConnectionString, dumpDir)
+		mongoDump, err := start.CreateMongoDump(mongoConnectionString, dumpDir)
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,7 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
-	startCmd.PersistentFlags().StringVar(&mongoHost, "mongo-host", "", "The mongo host to dump from")
+	startCmd.PersistentFlags().StringVar(&mongoConnectionString, "mongo-connection-string", "", "The mongo connection string to dump from")
 	startCmd.PersistentFlags().StringVar(&dumpDir, "dump-dir", "", "The directory to put the mongo dump")
 
 	startCmd.MarkPersistentFlagRequired("mongo-host")
