@@ -6,10 +6,11 @@ on:
     - '**'
     paths:
     - 'Source/Backup/**'
+    - '!Source/Backup/Cli/**'
 
 jobs:
-  ci-ms:
-    name: Build and Test Microservice
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -23,17 +24,3 @@ jobs:
     - name: Test
       working-directory: ./Source/Backup
       run: dotnet test --no-build --configuration Release
-
-  ci-cli:
-    name: Build and Test CLI
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
-    - name: Build
-      working-directory: ./Source/Backup/CLI
-      run: go build .
-    - name: Test
-      working-directory: ./Source/Backup/CLI
-      run: go test -v ./...

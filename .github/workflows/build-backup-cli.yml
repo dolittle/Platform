@@ -1,0 +1,23 @@
+name: Build Backup CLI
+
+on:
+  push:
+    branches:
+    - '**'
+    paths:
+    - 'Source/Backup/Cli/**'
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+    - name: Build
+      working-directory: ./Source/Backup/CLI
+      run: go build .
+    - name: Test
+      working-directory: ./Source/Backup/CLI
+      run: go test -v ./...
