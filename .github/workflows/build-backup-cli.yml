@@ -9,15 +9,12 @@ on:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-go@v2
     - name: Build
-      working-directory: ./Source/Backup/CLI
-      run: go build .
-    - name: Test
-      working-directory: ./Source/Backup/CLI
-      run: go test -v ./...
+      working-directory: ./Source/Backup/Cli
+      run: go build
