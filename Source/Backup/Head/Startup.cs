@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Dolittle.SDK.Events.Filters;
+using Dolittle.Platform.Backup.Filters;
 
 namespace Dolittle.Platform.Backup.Head
 {
@@ -56,14 +56,10 @@ namespace Dolittle.Platform.Backup.Head
         Client BuildClient()
             => new ClientBuilder("702967ce-9808-44f7-9399-d45cafa9be07")
                 .WithRuntimeOn("localhost", 50053)
-                .WithEventTypes(_ => _.Register<BackupStarted>())
-                .WithFilters(
-                    _ => _.CreatePublicFilter(
-                        "c148b829-dac0-42a3-8d5d-52c51a4f7560",
-                        _ => _.Handle((@event, context) =>
-                        {
-                            return new PartitionedFilterResult()
-                        })))
-                .Build();
+                .WithEventTypes(_ => _.RegisterAllFrom(typeof(EventTypeRegistry).Assembly))
+                .WithFilters(filtersBuilder =>
+                {
+                    filtersBuilder.CreateBackupFilter();
+                }).Build();
     }
 }
