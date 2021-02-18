@@ -21,8 +21,8 @@ namespace Dolittle.Platform.Backup.Filters
         static bool IsBackupEvent(EventType type)
             => type.Id.Value.ToString() switch
             {
-                EventTypeRegistry.BackupStartedId => true,
-                EventTypeRegistry.BackupStoredId => true,
+                EventTypeRegistry.EventStoreBackupStartedId => true,
+                EventTypeRegistry.EventStoreBackupStoredId => true,
                 _ => false
             };
     }

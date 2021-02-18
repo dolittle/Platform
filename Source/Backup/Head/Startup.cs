@@ -25,6 +25,7 @@ namespace Dolittle.Platform.Backup.Head
         public void ConfigureServices(IServiceCollection services)
         {
             var dolittleClient = BuildClient();
+            dolittleClient.Start();
             services.AddSingleton(dolittleClient);
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -57,9 +58,8 @@ namespace Dolittle.Platform.Backup.Head
             => new ClientBuilder("702967ce-9808-44f7-9399-d45cafa9be07")
                 .WithRuntimeOn("localhost", 50053)
                 .WithEventTypes(_ => _.RegisterAllFrom(typeof(EventTypeRegistry).Assembly))
-                .WithFilters(filtersBuilder =>
-                {
-                    filtersBuilder.CreateBackupFilter();
-                }).Build();
+                .WithFilters(filtersBuilder => 
+                    filtersBuilder
+                        .CreateBackupFilter()).Build();
     }
 }
