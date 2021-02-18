@@ -7,17 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type startBackupPayload struct {
-	DumpFilename string `json:"dumpFilename"`
-	Tenant       string `json:"tenant"`
-	Environment  string `json:"environment"`
-	EventSource  string `json:"eventSource"`
-	Application  string `json:"application"`
-}
-
 var (
 	mongoConnectionString string
 	dumpDir               string
+	shareName             string
 )
 
 var startCmd = &cobra.Command{
@@ -32,18 +25,30 @@ var startCmd = &cobra.Command{
 		}
 
 		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s\n", backend)
-		backupStarted, err := start.CreateBackupStarted(backend)
+		backup, err := start.CreateBackup(
+			backend,
+			mongoDump.BackupFileName,
+			tenant, env,
+			eventSource,
+			application,
+			applicationName,
+			shareName)
 		if err != nil {
 			return err
 		}
-		log.Printf("Dumping mongo database to %s \n", mongoDump.DumpFilepath)
+
+		err = backup.NotifyStart()
+		if err != nil {
+			return err
+		}
+
+		log.Printf("Dumping mongo database to %s \n", mongoDump.BackupFileName)
 		err = mongoDump.Dump()
 		if err != nil {
 			return err
 		}
 
-		log.Println("Committing event")
-		err = backupStarted.Commit(mongoDump.DumpFilename, tenant, env, eventSource, application)
+		err = backup.NotifyStored()
 		if err != nil {
 			return err
 		}
@@ -55,7 +60,9 @@ var startCmd = &cobra.Command{
 func init() {
 	startCmd.PersistentFlags().StringVar(&mongoConnectionString, "mongo-connection-string", "", "The mongo connection string to dump from")
 	startCmd.PersistentFlags().StringVar(&dumpDir, "dump-dir", "", "The directory to put the mongo dump")
+	startCmd.PersistentFlags().StringVar(&dumpDir, "share-name", "", "The share name of the azure file storage")
 
 	startCmd.MarkPersistentFlagRequired("mongo-host")
 	startCmd.MarkPersistentFlagRequired("dump-dir")
+	startCmd.MarkPersistentFlagRequired("share-name")
 }

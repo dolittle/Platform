@@ -1,60 +1,138 @@
 package start
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"path/filepath"
-	"time"
-
-	"github.com/mongodb/mongo-tools/common/options"
-	"github.com/mongodb/mongo-tools/mongodump"
+	"log"
+	"net/http"
+	"net/url"
 )
 
-type mongoDump struct {
-	*mongodump.MongoDump
-	DumpFilename string
-	DumpFilepath string
+const (
+	api                        string = "/api/backup"
+	startBackupMethodEndpoint  string = "start"
+	backupStoredMethodEndpoint string = "stored"
+)
+
+type requestPayload struct {
+	BackupFileName  string `json:"backupFileName"`
+	Tenant          string `json:"tenant"`
+	Environment     string `json:"environment"`
+	EventSource     string `json:"eventSource"`
+	Application     string `json:"application"`
+	ApplicationName string `json:"applicationName"`
+	ShareName       string `json:"shareName"`
 }
 
-func CreateMongoDump(mongoHost string, dumpDir string) (*mongoDump, error) {
-	dumpFileName := fmt.Sprintf("%s.gz.mongodump", time.Now().Format("2006-01-02_15-04-05"))
-	dumpFilepath := fmt.Sprintf("%s/%s", dumpDir, dumpFileName)
-	if !filepath.IsAbs(dumpFilepath) {
-		return nil, fmt.Errorf("%s is not an absolute file path", dumpFilepath)
+func createRequestPayload(backupFileName string, tenant string, environment string, eventSource string, application string, applicationName string, shareName string) requestPayload {
+	return requestPayload{
+		BackupFileName:  backupFileName,
+		Tenant:          tenant,
+		Environment:     environment,
+		EventSource:     eventSource,
+		Application:     application,
+		ApplicationName: applicationName,
+		ShareName:       shareName,
 	}
+}
 
-	dump, err := createDump(mongoHost, dumpFilepath)
+type backup struct {
+	apiURL          *url.URL
+	backupFileName  string
+	tenant          string
+	environment     string
+	eventSource     string
+	application     string
+	applicationName string
+	shareName       string
+}
+
+func CreateBackup(
+	backend string,
+	backupFileName string,
+	tenant string,
+	environment string,
+	eventSource string,
+	application string,
+	applicationName string,
+	shareName string) (*backup, error) {
+	postURL, err := url.Parse(fmt.Sprintf("%s%s", backend, api))
 	if err != nil {
 		return nil, err
 	}
-
-	err = dump.Init()
-	if err != nil {
-		return nil, err
-	}
-
-	return &mongoDump{
-		MongoDump:    dump,
-		DumpFilename: dumpFileName,
-		DumpFilepath: dumpFilepath,
+	return &backup{
+		apiURL:          postURL,
+		backupFileName:  backupFileName,
+		tenant:          tenant,
+		environment:     environment,
+		eventSource:     eventSource,
+		application:     application,
+		applicationName: applicationName,
+		shareName:       shareName,
 	}, nil
 }
 
-func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.MongoDump, error) {
-	toolOptions := options.New("mongodump", "", "", "", true, options.EnabledOptions{Connection: true})
-	_, err := toolOptions.ParseArgs([]string{mongoConnectionString})
+func (b *backup) NotifyStart() error {
+	payload := createRequestPayload(
+		b.backupFileName,
+		b.tenant,
+		b.environment,
+		b.eventSource,
+		b.application,
+		b.applicationName,
+		b.shareName)
+	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	inputOptions := &mongodump.InputOptions{}
-	outputOptions := &mongodump.OutputOptions{
-		Gzip:                   true,
-		Archive:                dumpFilepath,
-		NumParallelCollections: 1,
+	log.Printf("Notifying Backup microservice that backup has started with payload %s", payload)
+	err = b.sendPayload(jsonPayload, startBackupMethodEndpoint)
+	if err != nil {
+		return err
 	}
-	return &mongodump.MongoDump{
-		ToolOptions:   toolOptions,
-		InputOptions:  inputOptions,
-		OutputOptions: outputOptions,
-	}, nil
+	return nil
+}
+
+func (b *backup) NotifyStored() error {
+	payload := createRequestPayload(
+		b.backupFileName,
+		b.tenant,
+		b.environment,
+		b.eventSource,
+		b.application,
+		b.applicationName,
+		b.shareName)
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Notifying Backup microservice that backup has been successfully stored with payload %s", payload)
+	err = b.sendPayload(jsonPayload, backupStoredMethodEndpoint)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *backup) sendPayload(jsonPayload []byte, apiMethod string) error {
+	apiMethodEndpointURL, err := url.Parse(fmt.Sprintf("%s/%s", b.apiURL.String(), apiMethod))
+	if err != nil {
+		return err
+	}
+	log.Printf("Sending payload to endpoint %s\n", apiMethodEndpointURL.String())
+	response, err := http.Post(apiMethodEndpointURL.String(), "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Received response %s", response.Status)
+	if response.StatusCode != http.StatusOK {
+		var responseJSON map[string]interface{}
+		json.NewDecoder(response.Body).Decode(&responseJSON)
+		return fmt.Errorf("Received non-ok response %s with body %s", response.Status, responseJSON)
+	}
+	return nil
 }
