@@ -6,18 +6,16 @@ using Dolittle.SDK.Events;
 
 namespace Dolittle.Platform.Backup.Events
 {
-    [EventType(EventTypeRegistry.BackupStartedId, EventTypeRegistry.BackupStartedGeneration)]
-    public class BackupStarted
+    [EventType(EventTypeRegistry.BackupStoredId, EventTypeRegistry.BackupStoredGeneration)]
+    public class BackupStored
     {
-        public BackupStarted(DateTimeOffset startTime, string dumpFilepath, string environment, Guid application)
+        public BackupStored(string dumpFilepath, string environment, Guid application)
         {
-            StartTime = startTime;
             DumpFilepath = dumpFilepath;
             Environment = environment;
             Application = application;
         }
 
-        public DateTimeOffset StartTime { get; }
         public string DumpFilepath { get; }
         public string Environment { get; }
         public Guid Application { get; }

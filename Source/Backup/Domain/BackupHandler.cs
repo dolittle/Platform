@@ -29,12 +29,28 @@ namespace Dolittle.Platform.Backup.Domain
             _logger.LogInformation("Starting backup");
             await _client
                 .AggregateOf<Backup>(request.EventSource, _ => _.ForTenant(request.Tenant))
-                .Perform(_ => _.StartBackup(DateTimeOffset.UtcNow, request.DumpFilename, request.Environment, request.Application));
+                .Perform(_ => _.StartBackup(DateTimeOffset.UtcNow, request.DumpFilepath, request.Environment, request.Application));
+            return Ok();
+        }
+
+        [HttpPost("notify")]
+        public async Task<IActionResult> NotifyStored(NotifyBackupStoredRequest request)
+        {
+            _logger.LogInformation("Notifying that backup has been stored");
+            await _client
+                .AggregateOf<Backup>(request.EventSource, _ => _.ForTenant(request.Tenant))
+                .Perform(_ => _.NotifyOfBackupStored(request.DumpFilepath, request.Environment, request.Application));
             return Ok();
         }
     }
     public record StartBackupRequest(
-        [Required]string DumpFilename,
+        [Required]string DumpFilepath,
+        [Required]Guid Tenant,
+        [Required]string Environment,
+        [Required]Guid EventSource,
+        [Required]Guid Application);
+    public record NotifyBackupStoredRequest(
+        [Required]string DumpFilepath,
         [Required]Guid Tenant,
         [Required]string Environment,
         [Required]Guid EventSource,

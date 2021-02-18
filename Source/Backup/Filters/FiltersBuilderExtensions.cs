@@ -22,6 +22,7 @@ namespace Dolittle.Platform.Backup.Filters
             => type.Id.Value.ToString() switch
             {
                 EventTypeRegistry.BackupStartedId => true,
+                EventTypeRegistry.BackupStoredId => true,
                 _ => false
             };
     }
