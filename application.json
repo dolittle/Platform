@@ -3,11 +3,6 @@
     "name": "Platform",
     "tenant": "Dolittle",
     "license": "MIT",
-    "containerRegistry": "508c17455f2a4b4cb7a52fbb1484346d.azurecr.io",
-    "portal": {
-        "enabled": "false",
-        "id": "590696bc-1c4e-4a14-b621-c2125713a974"
-    },
     "microservices": [
         "./Source/Backup"
     ]
