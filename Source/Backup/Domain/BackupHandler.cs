@@ -29,7 +29,7 @@ namespace Dolittle.Platform.Backup.Domain
             _logger.LogInformation("Starting backup");
             await _client
                 .AggregateOf<Backup>(request.EventSource, _ => _.ForTenant(request.Tenant))
-                .Perform(_ => _.StartBackup(request.DumpFilename, request.Environment, request.Application));
+                .Perform(_ => _.StartBackup(DateTimeOffset.UtcNow, request.DumpFilename, request.Environment, request.Application));
             return Ok();
         }
     }

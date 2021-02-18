@@ -17,9 +17,9 @@ namespace Dolittle.Platform.Backup.Domain
         {
         }
 
-        public void StartBackup(string fileName, string environment, Guid application)
+        public void StartBackup(DateTimeOffset startTime, string fileName, string environment, Guid application)
         {
-            ApplyPublic(new BackupStarted(fileName, environment, application));
+            ApplyPublic(new BackupStarted(startTime, fileName, environment, application));
         }
     }
 }
