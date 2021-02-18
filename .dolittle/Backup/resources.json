@@ -4,7 +4,7 @@
             "servers": [
                 "platform-mongo"
             ],
-            "database": "event_store_applications"
+            "database": "event_store_backup"
         }
     }
 }

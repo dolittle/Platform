@@ -8,13 +8,13 @@ services:
       driver: none
 
   platform-runtime-backup:
-    image: dolittle/runtime:5.3.5
+    image: dolittle/runtime:5.4.1
     volumes:
       - ./Backup/resources.json:/app/.dolittle/resources.json
       - ./tenants.json:/app/.dolittle/tenants.json
       - ./microservices.json:/app/.dolittle/microservices.json
       - ./appsettings.json:/app/appsettings.json
     ports:
-      - 9701:9700
+      - 9700:9700
       - 50052:50052
       - 50053:50053
