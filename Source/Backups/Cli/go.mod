@@ -1,4 +1,4 @@
-module dolittle.io/systen/data/backups-cli
+module dolittle.io/system/backups-cli
 
 go 1.15
 

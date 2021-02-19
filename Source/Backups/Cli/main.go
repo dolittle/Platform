@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dolittle.io/system/data/backups-cli/cmd"
+	"dolittle.io/system/backups-cli/cmd"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 
-	"dolittle.io/system/data/backups-cli/start"
+	"dolittle.io/system/backups-cli/start"
 	"github.com/spf13/cobra"
 )
 
