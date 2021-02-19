@@ -60,7 +60,7 @@ var startCmd = &cobra.Command{
 func init() {
 	startCmd.PersistentFlags().StringVar(&mongoConnectionString, "mongo-connection-string", "", "The mongo connection string to dump from")
 	startCmd.PersistentFlags().StringVar(&dumpDir, "dump-dir", "", "The directory to put the mongo dump")
-	startCmd.PersistentFlags().StringVar(&dumpDir, "share-name", "", "The share name of the azure file storage")
+	startCmd.PersistentFlags().StringVar(&shareName, "share-name", "", "The share name of the azure file storage")
 
 	startCmd.MarkPersistentFlagRequired("mongo-host")
 	startCmd.MarkPersistentFlagRequired("dump-dir")
