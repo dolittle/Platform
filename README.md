@@ -1,6 +1,6 @@
-# Dolittle Platform
+# Dolittle Data
 
-This is the mono repo for all microservices part of the Dolittle Platform.
+This is the mono repo for all microservices part of the Dolittle Data.
 
 ## Code of conduct
 

@@ -1,0 +1,56 @@
+name: Dev - Backups Cli - Deploy
+
+env:
+  SOURCE_PATH: 'Source/Backups/Cli'
+  DOCKER_IMAGE_TAG: 'dolittle/system-data-backups-cli'
+  DOCKER_FILE: 'Source/Backups/Cli/Dockerfile'
+
+on:
+  pull_request:
+    branches:
+    - 'development'
+    types: [closed]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - uses: docker/setup-buildx-action@v1
+    - uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Establish context
+      id: context
+      uses: dolittle/establish-context-action@v2
+      with:
+        version-file: '${{ env.SOURCE_PATH }}/version.json'
+        environment-branch: 'development'
+
+    - name: Increment version
+      id: increment-version
+      if: ${{ steps.context.outputs.should-publish == 'true' }}
+      uses: dolittle/increment-version-action@v2
+      with:
+        version: ${{ steps.context.outputs.current-version }}
+        release-type: ${{ steps.context.outputs.release-type }}
+
+    - name: Push Production Image to Docker Hub
+      uses: docker/build-push-action@v2
+      if: ${{ steps.context.outputs.should-publish == 'true' }}
+      with:
+        push: true
+        context: .
+        file: ${{ env.DOCKER_FILE }}
+        tags: ${{ env.DOCKER_IMAGE_TAG }}:${{ steps.increment-version.outputs.next-version }}
+    
+    - name: Write version info
+      id: write-version-info
+      uses: dolittle/write-version-to-file-action@v1
+      if: ${{ steps.context.outputs.should-publish == 'true' }}
+      with:
+        path: '${{ env.SOURCE_PATH }}/version.json'
+        version: ${{ steps.increment-version.outputs.next-version }}
+        token: ${{ secrets.GITHUB_TOKEN }}

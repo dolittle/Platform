@@ -1,9 +1,0 @@
-{
-    "id": "3691e541-7af1-4d96-a07a-54181f5d0690",
-    "name": "Platform",
-    "tenant": "Dolittle",
-    "license": "MIT",
-    "microservices": [
-        "./Source/Backup"
-    ]
-}
