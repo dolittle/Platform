@@ -6,26 +6,23 @@ using Dolittle.SDK.Events;
 
 namespace Dolittle.Data.Backups.Events
 {
-    [EventType(EventTypeRegistry.EventStoreBackupStoredId, EventTypeRegistry.EventStoreBackupStoredGeneration)]
-    public class EventStoreBackupStored
+    [EventType(EventTypeRegistry.DatabaseBackupStoredId, EventTypeRegistry.DatabaseBackupStoredGeneration)]
+    public class DatabaseBackupStored
     {
-        public EventStoreBackupStored(
+        public DatabaseBackupStored(
             Guid application,
             string environment,
-            string applicationName,
             string shareName,
             string backupFileName)
         {
             Application = application;
             Environment = environment;
-            ApplicationName = applicationName;
             ShareName = shareName;
             BackupFileName = backupFileName;
         }
 
         public Guid Application { get; }
         public string Environment { get; }
-        public string ApplicationName { get; }
         public string ShareName { get; }
         public string BackupFileName { get; }
     }
