@@ -22,34 +22,37 @@ namespace Dolittle.Data.Backups.Domain
             _client = client;
         }
 
-        [HttpPost("start")]
-        public async Task<IActionResult> Start(Request request)
+        [HttpPost("stored")]
+        public async Task<IActionResult> Stored(Request request)
         {
-            _logger.LogInformation("Starting backup");
+            var eventSource = EventSources.From(request.Application, request.Environment);
             await _client
-                .AggregateOf<Backup>(request.EventSource, _ => _.ForTenant(request.Tenant))
-                .Perform(_ => _.StartBackup(
-                    DateTimeOffset.UtcNow,
-                    request.Application,
-                    request.Environment,
-                    request.ApplicationName,
-                    request.ShareName,
-                    request.BackupFileName));
+                .EventStore.ForTenant(request.Tenant)
+                .Commit(_ =>
+                    _.CreatePublicEvent(
+                        new Events.DatabaseBackupStored(
+                            request.Application,
+                            request.Environment,
+                            request.ShareName,
+                            request.BackupFileName))
+                    .FromEventSource(eventSource));
             return Ok();
         }
 
-        [HttpPost("stored")]
-        public async Task<IActionResult> NotifyStored(Request request)
+        [HttpPost("failed")]
+        public async Task<IActionResult> Failed(Request request)
         {
-            _logger.LogInformation("Notifying that backup has been stored");
+            var eventSource = EventSources.From(request.Application, request.Environment);
             await _client
-                .AggregateOf<Backup>(request.EventSource, _ => _.ForTenant(request.Tenant))
-                .Perform(_ => _.NotifyOfBackupStored(
-                    request.Application,
-                    request.Environment,
-                    request.ApplicationName,
-                    request.ShareName,
-                    request.BackupFileName));
+                .EventStore.ForTenant(request.Tenant)
+                .Commit(_ =>
+                    _.CreatePublicEvent(
+                        new Events.DatabaseBackupFailed(
+                            request.Application,
+                            request.Environment,
+                            request.ShareName,
+                            request.BackupFileName))
+                    .FromEventSource(eventSource));
             return Ok();
         }
     }
@@ -57,8 +60,6 @@ namespace Dolittle.Data.Backups.Domain
         string BackupFileName,
         Guid Tenant,
         string Environment,
-        Guid EventSource,
         Guid Application,
-        string ApplicationName,
         string ShareName);
 }
