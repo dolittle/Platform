@@ -26,6 +26,8 @@ namespace Dolittle.Data.Backups.Domain
         [HttpPost("stored")]
         public async Task<IActionResult> Stored(BackupStoredRequest request)
         {
+            var eventSource = EventSources.From(request.Application, request.Environment);
+            _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
             await _client
                 .EventStore.ForTenant(request.Tenant)
                 .Commit(_ =>
@@ -35,13 +37,15 @@ namespace Dolittle.Data.Backups.Domain
                             request.Environment,
                             request.ShareName,
                             request.BackupFileName))
-                    .FromEventSource(EventSources.From(request.Application, request.Environment)));
+                    .FromEventSource(eventSource));
             return Ok();
         }
 
         [HttpPost("failed")]
         public async Task<IActionResult> Failed(BackupFailedRequest request)
         {
+            var eventSource = EventSources.From(request.Application, request.Environment);
+            _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
             await _client
                 .EventStore.ForTenant(request.Tenant)
                 .Commit(_ =>
@@ -52,7 +56,7 @@ namespace Dolittle.Data.Backups.Domain
                             request.ShareName,
                             request.BackupFileName,
                             request.FailureReason))
-                    .FromEventSource(EventSources.From(request.Application, request.Environment)));
+                    .FromEventSource(eventSource));
             return Ok();
         }
     }
