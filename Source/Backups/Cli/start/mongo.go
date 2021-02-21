@@ -10,7 +10,7 @@ import (
 )
 
 type mongoDump struct {
-	*mongodump.MongoDump
+	internal     *mongodump.MongoDump
 	DumpFilePath string
 }
 
@@ -35,9 +35,17 @@ func CreateMongoDump(mongoHost string, dumpDir string, backupFileName string) (*
 	}
 
 	return &mongoDump{
-		MongoDump:    dump,
+		internal:     dump,
 		DumpFilePath: dumpFilePath,
 	}, nil
+}
+
+func (m *mongoDump) Dump() error {
+	err := m.internal.Dump()
+	if err != nil {
+		return fmt.Errorf("Failed dumping database: %s", err.Error())
+	}
+	return nil
 }
 
 func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.MongoDump, error) {
@@ -61,5 +69,5 @@ func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.M
 }
 
 func createInitError(errorMessage string) error {
-	return fmt.Errorf("Failed initializing mongo dump: %s", errorMessage)
+	return fmt.Errorf("Failed initializing mongo dump tool: %s", errorMessage)
 }

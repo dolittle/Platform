@@ -36,7 +36,7 @@ var startCmd = &cobra.Command{
 			return handleDatabaseError(err, backups, backupFileName)
 		}
 
-		log.Printf("Dumping mongo database to %s \n", backupFileName)
+		log.Printf("Dumping mongo database to %s \n", mongoDump.DumpFilePath)
 		err = mongoDump.Dump()
 		if err != nil {
 			return handleDatabaseError(err, backups, backupFileName)
@@ -63,7 +63,7 @@ func init() {
 
 func handleDatabaseError(err error, backups *start.Backups, backupFileName string) error {
 	failureReason := err.Error()
-	log.Printf("Error dumping database: %s\n", failureReason)
+	log.Printf("%s\n", failureReason)
 	err = backups.NotifyFailed(backupFileName, failureReason)
 	if err != nil {
 		log.Println("An error occurred while notifying of failed backup")

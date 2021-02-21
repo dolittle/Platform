@@ -121,8 +121,6 @@ func (b *Backups) sendPayload(jsonPayload []byte, apiMethod string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Printf("Received response %s", response.Status)
 	if response.StatusCode != http.StatusOK {
 		var responseJSON map[string]interface{}
 		json.NewDecoder(response.Body).Decode(&responseJSON)
