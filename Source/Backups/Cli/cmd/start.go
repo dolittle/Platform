@@ -18,37 +18,31 @@ var startCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		log.Println("Starting backup routine")
-		log.Printf("Initialzing mongo dump with connection string %s dumping to %s", mongoConnectionString, dumpDir)
-		mongoDump, err := start.CreateMongoDump(mongoConnectionString, dumpDir)
-		if err != nil {
-			return err
-		}
-
-		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s\n", backend)
-		backup, err := start.CreateBackup(
-			backend,
-			mongoDump.BackupFileName,
-			tenant, env,
-			eventSource,
+		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s:%d\n", host, port)
+		backupFileName := start.CreateBackupFileName()
+		backups, err := start.CreateBackups(
+			host,
+			port,
+			tenant,
+			env,
 			application,
-			applicationName,
 			shareName)
 		if err != nil {
 			return err
 		}
-
-		err = backup.NotifyStart()
+		log.Printf("Initialzing mongo dump with connection string %s", mongoConnectionString)
+		mongoDump, err := start.CreateMongoDump(mongoConnectionString, dumpDir, backupFileName)
 		if err != nil {
-			return err
+			return handleDatabaseError(err, backups, backupFileName)
 		}
 
-		log.Printf("Dumping mongo database to %s \n", mongoDump.BackupFileName)
+		log.Printf("Dumping mongo database to %s \n", mongoDump.DumpFilePath)
 		err = mongoDump.Dump()
 		if err != nil {
-			return err
+			return handleDatabaseError(err, backups, backupFileName)
 		}
 
-		err = backup.NotifyStored()
+		err = backups.NotifyStored(backupFileName)
 		if err != nil {
 			return err
 		}
@@ -65,4 +59,15 @@ func init() {
 	startCmd.MarkPersistentFlagRequired("mongo-host")
 	startCmd.MarkPersistentFlagRequired("dump-dir")
 	startCmd.MarkPersistentFlagRequired("share-name")
+}
+
+func handleDatabaseError(err error, backups *start.Backups, backupFileName string) error {
+	failureReason := err.Error()
+	log.Printf("%s\n", failureReason)
+	err = backups.NotifyFailed(backupFileName, failureReason)
+	if err != nil {
+		log.Println("An error occurred while notifying of failed backup")
+		return err
+	}
+	return err
 }

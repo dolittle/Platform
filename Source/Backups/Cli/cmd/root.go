@@ -8,30 +8,26 @@ import (
 )
 
 var (
-	backend         string
-	eventSource     string
-	env             string
-	application     string
-	applicationName string
-	tenant          string
-	rootCmd         = &cobra.Command{
+	host        string
+	port        int
+	env         string
+	application string
+	tenant      string
+	rootCmd     = &cobra.Command{
 		Use:   "backups-cli",
-		Short: "Initiate backups",
+		Short: "Perform backup",
 	}
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&backend, "backend", "", "The backend uri of the Backup Microservice")
-	rootCmd.PersistentFlags().StringVar(&eventSource, "event-source", "", "The event source id of the backup (unique for each environment and tenant and application)")
+	rootCmd.PersistentFlags().StringVar(&host, "host", "", "The host of the Backups microservice")
+	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", 80, "The port of the Backups microservice (defaults to 80)")
 	rootCmd.PersistentFlags().StringVar(&application, "application", "", "The application id")
-	rootCmd.PersistentFlags().StringVar(&applicationName, "application-name", "", "The application name")
 	rootCmd.PersistentFlags().StringVar(&env, "environment", "", "The environment")
 	rootCmd.PersistentFlags().StringVar(&tenant, "tenant", "", "The customer tenant id")
 
-	rootCmd.MarkPersistentFlagRequired("backend")
-	rootCmd.MarkPersistentFlagRequired("event-source")
+	rootCmd.MarkPersistentFlagRequired("host")
 	rootCmd.MarkPersistentFlagRequired("application")
-	rootCmd.MarkPersistentFlagRequired("application-name")
 	rootCmd.MarkPersistentFlagRequired("environment")
 	rootCmd.MarkPersistentFlagRequired("tenant")
 	rootCmd.AddCommand(startCmd)

@@ -34,8 +34,8 @@ RUN apt-get update && apt-get install -y libc-dev
 WORKDIR /app
 COPY --from=dotnet-build /app/Source/Backups/Head/out ./
 
-EXPOSE 5000
-EXPOSE 5001
-ENV ASPNETCORE_URLS=http://*:5000/
+# EXPOSE 5000
+# EXPOSE 5001
+# ENV ASPNETCORE_URLS=http://*:5000/
 
 ENTRYPOINT ["dotnet", "Head.dll"]

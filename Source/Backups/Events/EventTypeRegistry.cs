@@ -5,9 +5,9 @@ namespace Dolittle.Data.Backups.Events
 {
     public static class EventTypeRegistry
     {
-        public const string EventStoreBackupStartedId = "3a86e422-c958-40f8-91b3-383ea0f70d0a";
-        public const uint EventStoreBackupStartedGeneration = 0;
-        public const string EventStoreBackupStoredId = "f1c21ddf-3ae7-4ab7-860c-bf79a6b02394";
-        public const uint EventStoreBackupStoredGeneration = 0;
+        public const string DatabaseBackupFailedId = "3a86e422-c958-40f8-91b3-383ea0f70d0a";
+        public const uint DatabaseBackupFailedGeneration = 0;
+        public const string DatabaseBackupStoredId = "f1c21ddf-3ae7-4ab7-860c-bf79a6b02394";
+        public const uint DatabaseBackupStoredGeneration = 0;
     }
 }

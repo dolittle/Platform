@@ -10,31 +10,42 @@ import (
 )
 
 type mongoDump struct {
-	*mongodump.MongoDump
-	BackupFileName string
+	internal     *mongodump.MongoDump
+	DumpFilePath string
 }
 
-func CreateMongoDump(mongoHost string, dumpDir string) (*mongoDump, error) {
-	backupFileName := fmt.Sprintf("%s.gz.mongodump", time.Now().Format("2006-01-02_15-04-05"))
-	dumpFilepath := fmt.Sprintf("%s/%s", dumpDir, backupFileName)
-	if !filepath.IsAbs(dumpFilepath) {
-		return nil, fmt.Errorf("%s is not an absolute file path", dumpFilepath)
+func CreateBackupFileName() string {
+	return fmt.Sprintf("%s.gz.mongodump", time.Now().Format("2006-01-02_15-04-05"))
+}
+
+func CreateMongoDump(mongoHost string, dumpDir string, backupFileName string) (*mongoDump, error) {
+	dumpFilePath := fmt.Sprintf("%s/%s", dumpDir, backupFileName)
+	if !filepath.IsAbs(dumpFilePath) {
+		return nil, createInitError(fmt.Sprintf("Dump file path %s is not an absolute file path", dumpFilePath))
 	}
 
-	dump, err := createDump(mongoHost, dumpFilepath)
+	dump, err := createDump(mongoHost, dumpFilePath)
 	if err != nil {
-		return nil, err
+		return nil, createInitError(err.Error())
 	}
 
 	err = dump.Init()
 	if err != nil {
-		return nil, err
+		return nil, createInitError(err.Error())
 	}
 
 	return &mongoDump{
-		MongoDump:      dump,
-		BackupFileName: backupFileName,
+		internal:     dump,
+		DumpFilePath: dumpFilePath,
 	}, nil
+}
+
+func (m *mongoDump) Dump() error {
+	err := m.internal.Dump()
+	if err != nil {
+		return fmt.Errorf("Failed dumping database: %s", err.Error())
+	}
+	return nil
 }
 
 func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.MongoDump, error) {
@@ -55,4 +66,8 @@ func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.M
 		InputOptions:  inputOptions,
 		OutputOptions: outputOptions,
 	}, nil
+}
+
+func createInitError(errorMessage string) error {
+	return fmt.Errorf("Failed initializing mongo dump tool: %s", errorMessage)
 }
