@@ -1,4 +1,4 @@
-package start
+package mongo
 
 import (
 	"fmt"
