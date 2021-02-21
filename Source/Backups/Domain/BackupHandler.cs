@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Dolittle.Data.Backups.Events;
 using Dolittle.SDK;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -23,43 +24,49 @@ namespace Dolittle.Data.Backups.Domain
         }
 
         [HttpPost("stored")]
-        public async Task<IActionResult> Stored(Request request)
+        public async Task<IActionResult> Stored(BackupStoredRequest request)
         {
-            var eventSource = EventSources.From(request.Application, request.Environment);
             await _client
                 .EventStore.ForTenant(request.Tenant)
                 .Commit(_ =>
                     _.CreatePublicEvent(
-                        new Events.DatabaseBackupStored(
+                        new DatabaseBackupStored(
                             request.Application,
                             request.Environment,
                             request.ShareName,
                             request.BackupFileName))
-                    .FromEventSource(eventSource));
+                    .FromEventSource(EventSources.From(request.Application, request.Environment)));
             return Ok();
         }
 
         [HttpPost("failed")]
-        public async Task<IActionResult> Failed(Request request)
+        public async Task<IActionResult> Failed(BackupFailedRequest request)
         {
-            var eventSource = EventSources.From(request.Application, request.Environment);
             await _client
                 .EventStore.ForTenant(request.Tenant)
                 .Commit(_ =>
                     _.CreatePublicEvent(
-                        new Events.DatabaseBackupFailed(
+                        new DatabaseBackupFailed(
                             request.Application,
                             request.Environment,
                             request.ShareName,
-                            request.BackupFileName))
-                    .FromEventSource(eventSource));
+                            request.BackupFileName,
+                            request.FailureReason))
+                    .FromEventSource(EventSources.From(request.Application, request.Environment)));
             return Ok();
         }
     }
-    public record Request(
-        string BackupFileName,
-        Guid Tenant,
-        string Environment,
-        Guid Application,
-        string ShareName);
+    public record Request
+    {
+        public string BackupFileName { get; init; }
+        public Guid Tenant { get; init; }
+        public string Environment { get; init; }
+        public Guid Application { get; init; }
+        public string ShareName { get; init; }
+    }
+    public record BackupStoredRequest : Request;
+    public record BackupFailedRequest : Request
+    {
+        public string FailureReason { get; init; }
+    }
 }
