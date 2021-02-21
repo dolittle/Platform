@@ -1,8 +1,8 @@
 {
   "id": "702967ce-9808-44f7-9399-d45cafa9be07",
   "name": "Backups",
-  "version": "0.0.4",
-  "commit": "32453194a9c9efe6ee7808d09004adea1952e493",
-  "built": "2021-02-19T11:14:24.724Z",
+  "version": "0.1.0",
+  "commit": "a9accfa6a6196d7858dd8fb1261a4a5bf11be49f",
+  "built": "2021-02-21T10:25:31.600Z",
   "web": false
 }
