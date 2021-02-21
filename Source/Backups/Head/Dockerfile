@@ -3,16 +3,17 @@
 FROM alpine AS dotnet-source
 ARG CONFIGURATION=Release
 WORKDIR /app
-COPY Source/Backups/ ./Source/
-RUN rm -rf Source/Cli
+COPY Source/ ./Source/
+RUN rm -rf Source/Backups/Cli
 
 # DotNet Build
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS dotnet-build
 ARG CONFIGURATION=Release
 WORKDIR /app
 COPY --from=dotnet-source /app/Source ./Source/
+COPY versions.props ./ 
 
-WORKDIR /app/Source/Head
+WORKDIR /app/Source/Backups/Head
 RUN dotnet restore
 RUN dotnet publish -c ${CONFIGURATION} -o out
 
@@ -31,7 +32,7 @@ RUN if [ "$CONFIGURATION" = "debug" ] ; then curl -sSL https://aka.ms/getvsdbgsh
 RUN apt-get update && apt-get install -y libc-dev
 
 WORKDIR /app
-COPY --from=dotnet-build /app/Source/Head/out ./
+COPY --from=dotnet-build /app/Source/Backups/Head/out ./
 
 # EXPOSE 5000
 # EXPOSE 5001
