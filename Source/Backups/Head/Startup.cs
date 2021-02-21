@@ -43,11 +43,7 @@ namespace Dolittle.Data.Backups.Head
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Backup/Head v1"));
             }
 
-            // app.UseHttpsRedirection();
-
             app.UseRouting();
-
-            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
