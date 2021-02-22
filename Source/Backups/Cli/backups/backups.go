@@ -122,6 +122,11 @@ func (b *Backups) sendPayload(jsonPayload []byte, apiMethod string) error {
 	log.Printf("Sending payload to endpoint %s\n", apiMethodEndpointURL.String())
 	response, err := http.Post(apiMethodEndpointURL.String(), "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
+		if response != nil && response.StatusCode != http.StatusOK {
+			var responseJSON map[string]interface{}
+			json.NewDecoder(response.Body).Decode(&responseJSON)
+			return fmt.Errorf("Received non-ok response %s with body %s", response.Status, responseJSON)
+		}
 		return err
 	}
 	if response.StatusCode != http.StatusOK {
