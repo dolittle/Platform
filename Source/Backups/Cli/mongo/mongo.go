@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 	"time"
 
@@ -40,12 +41,17 @@ func CreateMongoDump(mongoHost string, dumpDir string, backupFileName string) (*
 	}, nil
 }
 
-func (m *mongoDump) Dump() error {
-	err := m.internal.Dump()
+func (m *mongoDump) Dump() (backupDurationInSeconds uint, err error) {
+	start := time.Now()
+	err = m.internal.Dump()
+	elapsed := time.Since(start)
+	backupDurationInSeconds = uint(elapsed.Round(time.Second).Seconds())
 	if err != nil {
-		return fmt.Errorf("Failed dumping database: %s", err.Error())
+		err = fmt.Errorf("Failed dumping database: %s", err.Error())
+		return backupDurationInSeconds, err
 	}
-	return nil
+	log.Printf("Dumping took %s\n", elapsed.String())
+	return backupDurationInSeconds, err
 }
 
 func createDump(mongoConnectionString string, dumpFilepath string) (*mongodump.MongoDump, error) {

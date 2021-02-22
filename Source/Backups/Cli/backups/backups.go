@@ -12,7 +12,7 @@ import (
 const (
 	api                        string = "/api/backup"
 	backupStoredMethodEndpoint string = "stored"
-	backupFailedMethodEndpoint string = "failed"
+	// backupFailedMethodEndpoint string = "failed"
 )
 
 type requestPayload struct {
@@ -24,11 +24,13 @@ type requestPayload struct {
 }
 type storedPayload struct {
 	requestPayload
+	DurationInSeconds uint `json:"durationInSeconds"`
 }
-type failedPayload struct {
-	requestPayload
-	FailureReason string `json:"failureReason"`
-}
+
+// type failedPayload struct {
+// 	requestPayload
+// 	FailureReason string `json:"failureReason"`
+// }
 
 func createPayload(b *Backups, backupFileName string) requestPayload {
 	return requestPayload{
@@ -39,19 +41,20 @@ func createPayload(b *Backups, backupFileName string) requestPayload {
 		ShareName:      b.shareName,
 	}
 }
-func createStoredPayload(b *Backups, backupFileName string) storedPayload {
+func createStoredPayload(b *Backups, backupFileName string, backupDurationInSeconds uint) storedPayload {
 	return storedPayload{
-		requestPayload: createPayload(b, backupFileName),
+		requestPayload:    createPayload(b, backupFileName),
+		DurationInSeconds: backupDurationInSeconds,
 	}
 }
 
-func createFailedPayload(b *Backups, backupFileName string, failureReason string) failedPayload {
-	payload := createPayload(b, backupFileName)
-	return failedPayload{
-		requestPayload: payload,
-		FailureReason:  failureReason,
-	}
-}
+// func createFailedPayload(b *Backups, backupFileName string, failureReason string) failedPayload {
+// 	payload := createPayload(b, backupFileName)
+// 	return failedPayload{
+// 		requestPayload: payload,
+// 		FailureReason:  failureReason,
+// 	}
+// }
 
 type Backups struct {
 	apiURL      *url.URL
@@ -81,23 +84,8 @@ func CreateBackups(
 	}, nil
 }
 
-func (b *Backups) NotifyFailed(backupFileName string, failureReason string) error {
-	payload := createFailedPayload(b, backupFileName, failureReason)
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Notifying Backups microservice that backup has failed with payload %s", payload)
-	err = b.sendPayload(jsonPayload, backupFailedMethodEndpoint)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (b *Backups) NotifyStored(backupFileName string) error {
-	payload := createStoredPayload(b, backupFileName)
+func (b *Backups) NotifyStored(backupFileName string, backupDurationInSeconds uint) error {
+	payload := createStoredPayload(b, backupFileName, backupDurationInSeconds)
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -110,6 +98,21 @@ func (b *Backups) NotifyStored(backupFileName string) error {
 	}
 	return nil
 }
+
+// func (b *Backups) NotifyFailed(backupFileName string, failureReason string) error {
+// 	payload := createFailedPayload(b, backupFileName, failureReason)
+// 	jsonPayload, err := json.Marshal(payload)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	log.Printf("Notifying Backups microservice that backup has failed with payload %s", payload)
+// 	err = b.sendPayload(jsonPayload, backupFailedMethodEndpoint)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (b *Backups) sendPayload(jsonPayload []byte, apiMethod string) error {
 	apiMethodEndpointURL, err := url.Parse(fmt.Sprintf("%s/%s", b.apiURL.String(), apiMethod))

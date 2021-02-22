@@ -44,16 +44,16 @@ var startCmd = &cobra.Command{
 		log.Printf("Initialzing mongo dump with connection string %s", mongoConnectionString)
 		mongoDump, err := mongo.CreateMongoDump(mongoConnectionString, archive, backupFileName)
 		if err != nil {
-			return handleDatabaseError(err, backups, backupFileName)
+			return err
 		}
 
 		log.Printf("Dumping mongo database to %s \n", mongoDump.DumpFilePath)
-		err = mongoDump.Dump()
+		backupDurationInSeconds, err := mongoDump.Dump()
 		if err != nil {
-			return handleDatabaseError(err, backups, backupFileName)
+			return err
 		}
 
-		err = backups.NotifyStored(backupFileName)
+		err = backups.NotifyStored(backupFileName, backupDurationInSeconds)
 		if err != nil {
 			return err
 		}
@@ -62,13 +62,13 @@ var startCmd = &cobra.Command{
 	},
 }
 
-func handleDatabaseError(err error, backups *backups.Backups, backupFileName string) error {
-	failureReason := err.Error()
-	log.Printf("%s\n", failureReason)
-	err = backups.NotifyFailed(backupFileName, failureReason)
-	if err != nil {
-		log.Println("An error occurred while notifying of failed backup")
-		return err
-	}
-	return err
-}
+// func handleDatabaseError(err error, backups *backups.Backups, backupFileName string) error {
+// 	failureReason := err.Error()
+// 	log.Printf("%s\n", failureReason)
+// 	err = backups.NotifyFailed(backupFileName, failureReason)
+// 	if err != nil {
+// 		log.Println("An error occurred while notifying of failed backup")
+// 		return err
+// 	}
+// 	return err
+// }
