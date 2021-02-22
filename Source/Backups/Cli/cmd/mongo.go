@@ -53,9 +53,8 @@ var startCmd = &cobra.Command{
 			return err
 		}
 
-		err = backups.NotifyStored(backupFileName, backupDurationInSeconds)
-		if err != nil {
-			return err
+		if err = backups.NotifyStored(backupFileName, backupDurationInSeconds); err != nil {
+			log.Println("Failed to notify Backups microservice of persisted backup")
 		}
 
 		return nil
