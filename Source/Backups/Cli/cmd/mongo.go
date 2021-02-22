@@ -60,14 +60,3 @@ var startCmd = &cobra.Command{
 		return nil
 	},
 }
-
-// func handleDatabaseError(err error, backups *backups.Backups, backupFileName string) error {
-// 	failureReason := err.Error()
-// 	log.Printf("%s\n", failureReason)
-// 	err = backups.NotifyFailed(backupFileName, failureReason)
-// 	if err != nil {
-// 		log.Println("An error occurred while notifying of failed backup")
-// 		return err
-// 	}
-// 	return err
-// }
