@@ -7,7 +7,7 @@ using Dolittle.SDK.Events;
 namespace Dolittle.Data.Backups.Events
 {
     [EventType(EventTypeRegistry.DatabaseBackupStoredId, EventTypeRegistry.DatabaseBackupStoredGeneration)]
-    public record DatabaseBackupStored(
+    public record EventStoreAndReadModelsBackedup(
         Guid Application,
         string Environment,
         string ShareName,

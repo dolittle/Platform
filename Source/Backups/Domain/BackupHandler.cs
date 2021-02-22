@@ -24,7 +24,7 @@ namespace Dolittle.Data.Backups.Domain
         }
 
         [HttpPost("stored")]
-        public async Task<IActionResult> Stored(BackupStoredRequest request)
+        public async Task<IActionResult> Stored(NotifyStoredRequest request)
         {
             var eventSource = EventSources.From(request.Application, request.Environment);
             _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
@@ -32,45 +32,48 @@ namespace Dolittle.Data.Backups.Domain
                 .EventStore.ForTenant(request.Tenant)
                 .Commit(_ =>
                     _.CreatePublicEvent(
-                        new DatabaseBackupStored(
-                            request.Application,
-                            request.Environment,
-                            request.ShareName,
-                            request.BackupFileName))
-                    .FromEventSource(eventSource));
-            return Ok();
-        }
-
-        [HttpPost("failed")]
-        public async Task<IActionResult> Failed(BackupFailedRequest request)
-        {
-            var eventSource = EventSources.From(request.Application, request.Environment);
-            _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
-            await _client
-                .EventStore.ForTenant(request.Tenant)
-                .Commit(_ =>
-                    _.CreatePublicEvent(
-                        new DatabaseBackupFailed(
+                        new EventStoreAndReadModelsBackedUp(
                             request.Application,
                             request.Environment,
                             request.ShareName,
                             request.BackupFileName,
-                            request.FailureReason))
+                            request.BackupDuration))
                     .FromEventSource(eventSource));
             return Ok();
         }
     }
-    public record Request
+
+    //     [HttpPost("failed")]
+    //     public async Task<IActionResult> Failed(BackupFailedRequest request)
+    //     {
+    //         var eventSource = EventSources.From(request.Application, request.Environment);
+    //         _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
+    //         await _client
+    //             .EventStore.ForTenant(request.Tenant)
+    //             .Commit(_ =>
+    //                 _.CreatePublicEvent(
+    //                     new DatabaseBackupFailed(
+    //                         request.Application,
+    //                         request.Environment,
+    //                         request.ShareName,
+    //                         request.BackupFileName,
+    //                         request.FailureReason))
+    //                 .FromEventSource(eventSource));
+    //         return Ok();
+    //     }
+    // }
+    public record NotifyStoredRequest
     {
         public string BackupFileName { get; init; }
         public Guid Tenant { get; init; }
         public string Environment { get; init; }
         public Guid Application { get; init; }
         public string ShareName { get; init; }
+        public uint BackupDuration { get; init; }
     }
-    public record BackupStoredRequest : Request;
-    public record BackupFailedRequest : Request
-    {
-        public string FailureReason { get; init; }
-    }
+    // public record BackupStoredRequest : Request;
+    // public record BackupFailedRequest : Request
+    // {
+    //     public string FailureReason { get; init; }
+    // }
 }
