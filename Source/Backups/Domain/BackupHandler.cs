@@ -37,7 +37,7 @@ namespace Dolittle.Data.Backups.Domain
                             request.Environment,
                             request.ShareName,
                             request.BackupFileName,
-                            request.BackupDuration))
+                            request.DurationInSeconds))
                     .FromEventSource(eventSource));
             return Ok();
         }
@@ -69,7 +69,7 @@ namespace Dolittle.Data.Backups.Domain
         public string Environment { get; init; }
         public Guid Application { get; init; }
         public string ShareName { get; init; }
-        public uint BackupDuration { get; init; }
+        public uint DurationInSeconds { get; init; }
     }
     // public record BackupStoredRequest : Request;
     // public record BackupFailedRequest : Request

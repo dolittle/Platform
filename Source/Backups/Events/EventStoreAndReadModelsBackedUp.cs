@@ -12,5 +12,5 @@ namespace Dolittle.Data.Backups.Events
         string Environment,
         string ShareName,
         string BackupFileName,
-        uint BackupDuration);
+        uint DurationInSeconds);
 }
