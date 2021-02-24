@@ -42,27 +42,7 @@ namespace Dolittle.Data.Backups.Domain
             return Ok();
         }
     }
-
-    //     [HttpPost("failed")]
-    //     public async Task<IActionResult> Failed(BackupFailedRequest request)
-    //     {
-    //         var eventSource = EventSources.From(request.Application, request.Environment);
-    //         _logger.LogDebug("Received {Request} on event source {EventSource}", request, eventSource);
-    //         await _client
-    //             .EventStore.ForTenant(request.Tenant)
-    //             .Commit(_ =>
-    //                 _.CreatePublicEvent(
-    //                     new DatabaseBackupFailed(
-    //                         request.Application,
-    //                         request.Environment,
-    //                         request.ShareName,
-    //                         request.BackupFileName,
-    //                         request.FailureReason))
-    //                 .FromEventSource(eventSource));
-    //         return Ok();
-    //     }
-    // }
-    public record NotifyStoredRequest
+    public record Request
     {
         public string BackupFileName { get; init; }
         public Guid Tenant { get; init; }
@@ -71,9 +51,5 @@ namespace Dolittle.Data.Backups.Domain
         public string ShareName { get; init; }
         public uint DurationInSeconds { get; init; }
     }
-    // public record BackupStoredRequest : Request;
-    // public record BackupFailedRequest : Request
-    // {
-    //     public string FailureReason { get; init; }
-    // }
+    public record NotifyStoredRequest : Request;
 }

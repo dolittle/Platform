@@ -15,14 +15,13 @@ namespace Dolittle.Data.Backups.Filters
         public static EventFiltersBuilder CreateBackupFilter(this EventFiltersBuilder builder)
             => builder.CreatePublicFilter(
                 BackupFilterId,
-                _ => _.Handle((@event, context) => Task.FromResult(new PartitionedFilterResult(IsBackupEvent(context.Type), context.CommittedExecutionContext.Tenant.Value))));
+                _ => _.Handle((@event, context) => Task.FromResult(new PartitionedFilterResult(IsBackupEvent(context.Type), PartitionId.Unspecified))));
 
 
         static bool IsBackupEvent(EventType type)
             => type.Id.Value.ToString() switch
             {
                 EventTypeRegistry.EventStoreAndReadModelsBackedUpId => true,
-                // EventTypeRegistry.DatabaseBackupFailedId => true,
                 _ => false
             };
     }
