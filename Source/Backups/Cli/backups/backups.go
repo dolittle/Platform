@@ -12,7 +12,6 @@ import (
 const (
 	api                        string = "/api/backup"
 	backupStoredMethodEndpoint string = "stored"
-	// backupFailedMethodEndpoint string = "failed"
 )
 
 type requestPayload struct {
@@ -26,11 +25,6 @@ type storedPayload struct {
 	requestPayload
 	DurationInSeconds uint `json:"durationInSeconds"`
 }
-
-// type failedPayload struct {
-// 	requestPayload
-// 	FailureReason string `json:"failureReason"`
-// }
 
 func createPayload(b *Backups, backupFileName string) requestPayload {
 	return requestPayload{
@@ -47,14 +41,6 @@ func createStoredPayload(b *Backups, backupFileName string, backupDurationInSeco
 		DurationInSeconds: backupDurationInSeconds,
 	}
 }
-
-// func createFailedPayload(b *Backups, backupFileName string, failureReason string) failedPayload {
-// 	payload := createPayload(b, backupFileName)
-// 	return failedPayload{
-// 		requestPayload: payload,
-// 		FailureReason:  failureReason,
-// 	}
-// }
 
 type Backups struct {
 	apiURL      *url.URL
@@ -91,28 +77,13 @@ func (b *Backups) NotifyStored(backupFileName string, backupDurationInSeconds ui
 		return err
 	}
 
-	log.Printf("Notifying Backups microservice that backup has been successfully stored with payload %s", payload)
+	log.Printf("Notifying Backups microservice that backup has been successfully stored with payload %v", payload)
 	err = b.sendPayload(jsonPayload, backupStoredMethodEndpoint)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-// func (b *Backups) NotifyFailed(backupFileName string, failureReason string) error {
-// 	payload := createFailedPayload(b, backupFileName, failureReason)
-// 	jsonPayload, err := json.Marshal(payload)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	log.Printf("Notifying Backups microservice that backup has failed with payload %s", payload)
-// 	err = b.sendPayload(jsonPayload, backupFailedMethodEndpoint)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
 
 func (b *Backups) sendPayload(jsonPayload []byte, apiMethod string) error {
 	apiMethodEndpointURL, err := url.Parse(fmt.Sprintf("%s/%s", b.apiURL.String(), apiMethod))
