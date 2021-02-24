@@ -28,21 +28,9 @@ var startCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		mongoConnectionString = args[0]
+
 		log.Println("Starting backup routine")
-		log.Printf("Setting up system for committing event to Backup microservice at endpoint %s:%d\n", backendURL, backendPort)
-		backupFileName := mongo.CreateBackupFileName()
-		backups, err := backups.CreateBackups(
-			backendURL,
-			backendPort,
-			tenant,
-			environment,
-			application,
-			shareName)
-		if err != nil {
-			return err
-		}
-		log.Printf("Initialzing mongo dump with connection string %s", mongoConnectionString)
-		mongoDump, err := mongo.CreateMongoDump(mongoConnectionString, archive, backupFileName)
+		backups, mongoDump, err := createDependencies()
 		if err != nil {
 			return err
 		}
@@ -53,10 +41,30 @@ var startCmd = &cobra.Command{
 			return err
 		}
 
-		if err = backups.NotifyStored(backupFileName, backupDurationInSeconds); err != nil {
+		if err = backups.NotifyStored(mongoDump.DumpFileName, backupDurationInSeconds); err != nil {
 			log.Printf("Failed to notify Backups microservice of persisted backup: %s", err.Error())
 		}
 
 		return nil
 	},
+}
+
+func createDependencies() (*backups.Backups, *mongo.MongoDump, error) {
+	log.Printf("Setting up system for committing event to Backup microservice at endpoint %s:%d\n", backendURL, backendPort)
+	backups, err := backups.CreateBackups(
+		backendURL,
+		backendPort,
+		tenant,
+		environment,
+		application,
+		shareName)
+	if err != nil {
+		return nil, nil, err
+	}
+	log.Printf("Initialzing mongo dump with connection string %s", mongoConnectionString)
+	mongoDump, err := mongo.CreateMongoDump(mongoConnectionString, archive)
+	if err != nil {
+		return nil, nil, err
+	}
+	return backups, mongoDump, nil
 }

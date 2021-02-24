@@ -11,8 +11,7 @@ import (
 
 const (
 	defaultConfigFilename = "backups"
-
-	envPrefix = "BACKUPS"
+	envPrefix             = "BACKUPS"
 )
 
 func Initialize(cmd *cobra.Command) error {

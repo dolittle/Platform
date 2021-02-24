@@ -18,7 +18,7 @@ namespace Dolittle.Data.Backups.Domain
         {
             using var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.Default.GetBytes(input));
-            return new Guid(hash);
+            return new(hash);
         }
         /// https://stackoverflow.com/a/1641173
         static Guid MergeTwoGuids(Guid guid1, Guid guid2)
@@ -32,7 +32,7 @@ namespace Dolittle.Data.Backups.Domain
             {
                 destByte[i] = (byte) (guid1Byte[i] ^ guid2Byte[i]);
             }
-            return new Guid(destByte);
+            return new(destByte);
         }
     }
 }

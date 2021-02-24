@@ -25,15 +25,15 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&backendURL, "backend-url", "", "The url of the Backups microservice")
+	rootCmd.MarkPersistentFlagRequired("backend-url")
 	rootCmd.PersistentFlags().IntVarP(&backendPort, "backend-port", "p", 80, "The port of the Backups microservice (defaults to 80)")
 	rootCmd.PersistentFlags().StringVarP(&application, "application", "a", "", "The application id")
-	rootCmd.PersistentFlags().StringVarP(&tenant, "tenant", "t", "", "The customer tenant id")
-	rootCmd.PersistentFlags().StringVarP(&environment, "environment", "e", "", "The environment")
-
-	rootCmd.MarkPersistentFlagRequired("backend-url")
 	rootCmd.MarkPersistentFlagRequired("application")
-	rootCmd.MarkPersistentFlagRequired("environment")
+	rootCmd.PersistentFlags().StringVarP(&tenant, "tenant", "t", "", "The customer tenant id")
 	rootCmd.MarkPersistentFlagRequired("tenant")
+	rootCmd.PersistentFlags().StringVarP(&environment, "environment", "e", "", "The environment")
+	rootCmd.MarkPersistentFlagRequired("environment")
+
 	rootCmd.AddCommand(startCmd)
 }
 
