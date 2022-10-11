@@ -1,5 +1,15 @@
 package microservices
 
+import "strings"
+
+type identityString interface {
+	TenantID | ApplicationID | Environment | MicroserviceID
+}
+
+func identityFromString[T identityString](value string) T {
+	return T(strings.ToLower(value))
+}
+
 type TenantID string
 type ApplicationID string
 type Environment string

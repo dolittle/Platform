@@ -2,8 +2,8 @@ package microservices
 
 import (
 	"errors"
+
 	coreV1 "k8s.io/api/core/v1"
-	"strings"
 )
 
 var (
@@ -16,42 +16,40 @@ var (
 )
 
 func convertPodToMicroservice(pod *coreV1.Pod) (Microservice, error) {
+	microservice := Microservice{}
 	if pod == nil {
-		return Microservice{}, ErrPodWasNil
+		return microservice, ErrPodWasNil
+	}
+	tenantID := pod.Annotations["dolittle.io/tenant-id"]
+	if tenantID == "" {
+		return microservice, ErrPodMissingTenant
 	}
 
-	tenant := pod.Annotations["dolittle.io/tenant-id"]
-	if tenant == "" {
-		return Microservice{}, ErrPodMissingTenant
+	microservice.Identity.Tenant = identityFromString[TenantID](tenantID)
+	applicationID := pod.Annotations["dolittle.io/application-id"]
+	if applicationID == "" {
+		return microservice, ErrPodMissingApplication
 	}
 
-	application := pod.Annotations["dolittle.io/tenant-id"]
-	if application == "" {
-		return Microservice{}, ErrPodMissingApplication
-	}
-
+	microservice.Identity.Application = identityFromString[ApplicationID](applicationID)
 	environment := pod.Labels["environment"]
 	if environment == "" {
-		return Microservice{}, ErrPodMissingEnvironment
+		return microservice, ErrPodMissingEnvironment
 	}
 
-	microservice := pod.Annotations["dolittle.io/microservice-id"]
-	if microservice == "" {
-		return Microservice{}, ErrPodMissingMicroservice
+	microservice.Identity.Environment = identityFromString[Environment](environment)
+	microserviceID := pod.Annotations["dolittle.io/microservice-id"]
+	if microserviceID == "" {
+		return microservice, ErrPodMissingMicroservice
 	}
 
+	microservice.Identity.Microservice = identityFromString[MicroserviceID](microserviceID)
 	ipAddress := pod.Status.PodIP
 	if ipAddress == "" {
-		return Microservice{}, ErrPodMissingIPAddress
+		return microservice, ErrPodMissingIPAddress
 	}
 
-	return Microservice{
-		Identity: Identity{
-			Tenant:       TenantID(strings.ToLower(tenant)),
-			Application:  ApplicationID(strings.ToLower(application)),
-			Environment:  Environment(strings.ToLower(environment)),
-			Microservice: MicroserviceID(strings.ToLower(microservice)),
-		},
-		IP: IPAddress(ipAddress),
-	}, nil
+	microservice.IP = IPAddress(ipAddress)
+
+	return microservice, nil
 }

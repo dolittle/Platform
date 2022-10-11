@@ -14,7 +14,7 @@ func (u *Updater) Add(pod *coreV1.Pod) {
 
 	microservice, err := convertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
 		return
 	}
 
@@ -27,7 +27,7 @@ func (u *Updater) Update(pod *coreV1.Pod) {
 
 	microservice, err := convertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
 		return
 	}
 
@@ -40,7 +40,7 @@ func (u *Updater) Delete(pod *coreV1.Pod) {
 
 	microservice, err := convertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
 		return
 	}
 
