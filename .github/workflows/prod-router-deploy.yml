@@ -1,19 +1,18 @@
-name: Dev - Backups - Deploy
+name: Prod - Router - Deploy
 
 env:
-  SOURCE_PATH: 'Source/Backups'
-  DEPLOYMENT_NAME: 'dev-backups'
-  DOCKER_IMAGE_TAG: 'dolittle/system-data-backups'
-  DOCKER_FILE: 'Source/Backups/Head/Dockerfile'
+  SOURCE_PATH: 'Source/Router'
+  DEPLOYMENT_NAME: 'prod-router'
+  DOCKER_IMAGE_TAG: 'dolittle/system-router'
+  DOCKER_FILE: 'Source/Router/Dockerfile'
 
 on:
   pull_request:
     branches:
-    - 'development'
+    - 'main'
     types: [closed]
     paths:
-    - 'Source/Backups/**'
-    - '!Source/Backups/Cli/**'
+    - 'Source/Router/**'
 
 jobs:
   deploy:
@@ -26,8 +25,7 @@ jobs:
       id: context
       uses: dolittle/establish-context-action@v2
       with:
-        version-file: '${{ env.SOURCE_PATH }}/microservice.json'
-        environment-branch: 'development'
+        version-file: '${{ env.SOURCE_PATH }}/version.json'
 
     - name: Increment version
       id: increment-version
