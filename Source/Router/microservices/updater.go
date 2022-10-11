@@ -9,7 +9,7 @@ type Updater struct {
 	Registry *Registry
 }
 
-func (u Updater) Add(pod *coreV1.Pod) {
+func (u *Updater) Add(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Add").Logger()
 
 	microservice, err := convertPodToMicroservice(pod)
@@ -22,7 +22,7 @@ func (u Updater) Add(pod *coreV1.Pod) {
 	u.Registry.Upsert(microservice)
 }
 
-func (u Updater) Update(pod *coreV1.Pod) {
+func (u *Updater) Update(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Update").Logger()
 
 	microservice, err := convertPodToMicroservice(pod)
@@ -35,7 +35,7 @@ func (u Updater) Update(pod *coreV1.Pod) {
 	u.Registry.Upsert(microservice)
 }
 
-func (u Updater) Delete(pod *coreV1.Pod) {
+func (u *Updater) Delete(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Delete").Logger()
 
 	microservice, err := convertPodToMicroservice(pod)

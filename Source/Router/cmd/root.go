@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 			client,
 			time.Minute,
 			"tenant,application,environment,microservice,!infrastructure",
-			microservices.Updater{
+			&microservices.Updater{
 				Registry: registry,
 			},
 			cmd.Context().Done(),
