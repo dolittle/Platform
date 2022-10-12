@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/gorilla/mux v1.8.0
+	github.com/knadh/koanf v1.4.3
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.5.0
 	k8s.io/api v0.25.2
@@ -30,7 +31,6 @@ require (
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/knadh/koanf v1.4.3 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
