@@ -1,19 +1,19 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/dolittle/platform-router/admin"
 	"github.com/dolittle/platform-router/config"
-	"github.com/dolittle/platform-router/kubernetes"
 	"github.com/dolittle/platform-router/microservices"
+	"github.com/dolittle/platform-router/proxy"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"net/http"
 	"time"
 )
 
-var proxy = &cobra.Command{
+var proxyCmd = &cobra.Command{
 	Use:   "proxy",
 	Short: "Starts the proxy server",
 	RunE: func(cmd *cobra.Command, _ []string) error {
@@ -22,51 +22,79 @@ var proxy = &cobra.Command{
 			return err
 		}
 		log.Logger = logger
-
-		log.Info().Msg(config.String("listen-on"))
-		return nil
-
-		log.Info().Str("address", config.String("listenOn")).Msg("Starting server")
-		// microservicesConfig, err := microservices.GetConfiguration(viper.GetViper())
-		microservicesConfig := microservices.Configuration{}
-		err = config.Unmarshal("microservices", &microservicesConfig)
-		if err != nil {
-			return err
-		}
-
-		log.Info().Interface("microservicesConfig", microservicesConfig).Msg("TEST")
-
-		client, err := kubernetes.NewClient()
-		if err != nil {
-			return err
-		}
+		//ctx, stop := context.WithCancel(cmd.Context())
+		//ctx := cmd.Context()
 
 		registry := microservices.NewRegistry()
-		kubernetes.StartNewPodWatcher(
-			client,
-			time.Minute,
-			"tenant,application,environment,microservice,!infrastructure",
-			microservices.NewUpdater(registry, microservicesConfig.Microservice),
-			cmd.Context().Done(),
-		)
+		// TODO: Remove after testing
+		registry.Upsert(microservices.Microservice{
+			Identity: microservices.ToIdentity("", "a", "b", "c"),
+			IP:       "127.0.0.1",
+			Ports: map[microservices.Port]int{
+				microservices.Port{
+					Container: "runtime",
+					Port:      "http",
+				}: 6006,
+			},
+		})
 
 		router := mux.NewRouter()
 		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry)
-		microservices.AddProxy(router, registry, microservicesConfig.Proxy)
+		proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config)
+
 		server := &http.Server{
 			Handler:      router,
-			Addr:         viper.GetString("listenOn"),
+			Addr:         fmt.Sprintf(":%d", config.Int("proxy.port")),
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
 		}
 
-		go server.ListenAndServe()
-		<-cmd.Context().Done()
-		server.Shutdown(cmd.Context())
-		return nil
+		log.Info().Str("address", server.Addr).Msg("Starting server")
+		return server.ListenAndServe()
+
+		//log.Info().Msg(config.String("listen-on"))
+		//return nil
+
+		//log.Info().Str("address", config.String("listenOn")).Msg("Starting server")
+		//// microservicesConfig, err := microservices.GetConfiguration(viper.GetViper())
+		//microservicesConfig := microservices.Configuration{}
+		//err = config.Unmarshal("microservices", &microservicesConfig)
+		//if err != nil {
+		//	return err
+		//}
+
+		//log.Info().Interface("microservicesConfig", microservicesConfig).Msg("TEST")
+
+		//client, err := kubernetes.NewClient()
+		//if err != nil {
+		//	return err
+		//}
+
+		//kubernetes.StartNewPodWatcher(
+		//	client,
+		//	time.Minute,
+		//	"tenant,application,environment,microservice,!infrastructure",
+		//	microservices.NewUpdater(registry, microservicesConfig.Microservice),
+		//	cmd.Context().Done(),
+		//)
+
+		//router := mux.NewRouter()
+		//admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry)
+		//microservices.AddProxy(router, registry, microservicesConfig.Proxy)
+		//server := &http.Server{
+		//	Handler:      router,
+		//	Addr:         viper.GetString("listenOn"),
+		//	WriteTimeout: 15 * time.Second,
+		//	ReadTimeout:  15 * time.Second,
+		//}
+
+		//go server.ListenAndServe()
+		//<-cmd.Context().Done()
+		//server.Shutdown(cmd.Context())
+		//return nil
 	},
 }
 
 func init() {
-	proxy.Flags().String("listen-on", "localhost:8080", "The address to listen on")
+	proxyCmd.Flags().Int("proxy.port", 8080, "The port the proxy server should listen on")
 }

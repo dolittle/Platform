@@ -29,8 +29,10 @@ type Port struct {
 	Port      string
 }
 
+type Ports map[Port]int
+
 type Microservice struct {
 	Identity Identity
 	IP       IPAddress
-	Ports    map[Port]int32
+	Ports    Ports
 }

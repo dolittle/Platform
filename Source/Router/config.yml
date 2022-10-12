@@ -1,3 +1,20 @@
+logger:
+  format: console
+  level: info
+
+proxy:
+  port: 8080
+
+paths:
+  shell:
+    - container: shell
+      port: ws
+  runtime-management:
+    - container: runtime
+      port: management
+    - container: runtime
+      port: http
+
 listenOn: localhost:8080
 microservices:
   microservice: 

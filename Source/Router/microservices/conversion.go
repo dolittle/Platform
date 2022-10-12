@@ -2,6 +2,7 @@ package microservices
 
 import (
 	"errors"
+	"strings"
 
 	coreV1 "k8s.io/api/core/v1"
 )
@@ -16,49 +17,58 @@ var (
 )
 
 func convertPodToMicroservice(pod *coreV1.Pod, config MicroserviceConfiguration) (Microservice, error) {
-	microservice := Microservice{}
 	if pod == nil {
-		return microservice, ErrPodWasNil
-	}
-	tenantID := pod.Annotations[config.TenantIDAnnotation]
-	if tenantID == "" {
-		return microservice, ErrPodMissingTenant
+		return Microservice{}, ErrPodWasNil
 	}
 
-	microservice.Identity.Tenant = identityFromString[TenantID](tenantID)
-	applicationID := pod.Annotations[config.ApplicationIDAnnotation]
-	if applicationID == "" {
-		return microservice, ErrPodMissingApplication
+	tenant := pod.Annotations[config.TenantIDAnnotation]
+	if tenant == "" {
+		return Microservice{}, ErrPodMissingTenant
 	}
 
-	microservice.Identity.Application = identityFromString[ApplicationID](applicationID)
+	application := pod.Annotations[config.ApplicationIDAnnotation]
+	if application == "" {
+		return Microservice{}, ErrPodMissingApplication
+	}
+
 	environment := pod.Labels[config.EnvironmentLabel]
 	if environment == "" {
-		return microservice, ErrPodMissingEnvironment
+		return Microservice{}, ErrPodMissingEnvironment
 	}
 
-	microservice.Identity.Environment = identityFromString[Environment](environment)
-	microserviceID := pod.Annotations[config.MicroserviceIDAnnotation]
-	if microserviceID == "" {
-		return microservice, ErrPodMissingMicroservice
+	microservice := pod.Annotations[config.MicroserviceIDAnnotation]
+	if microservice == "" {
+		return Microservice{}, ErrPodMissingMicroservice
 	}
 
-	microservice.Identity.Microservice = identityFromString[MicroserviceID](microserviceID)
 	ipAddress := pod.Status.PodIP
 	if ipAddress == "" {
-		return microservice, ErrPodMissingIPAddress
+		return Microservice{}, ErrPodMissingIPAddress
 	}
-	microservice.IP = IPAddress(ipAddress)
 
-	microservice.Ports = make(map[Port]int32)
+	info := Microservice{
+		Identity: ToIdentity(tenant, application, environment, microservice),
+		IP:       IPAddress(ipAddress),
+		Ports:    make(map[Port]int),
+	}
+
 	for _, container := range pod.Spec.Containers {
 		for _, port := range container.Ports {
-			microservice.Ports[Port{
+			info.Ports[Port{
 				Container: container.Name,
 				Port:      port.Name,
-			}] = port.ContainerPort
+			}] = int(port.ContainerPort)
 		}
 	}
 
-	return microservice, nil
+	return info, nil
+}
+
+func ToIdentity(tenant, application, environment, microservice string) Identity {
+	return Identity{
+		Tenant:       TenantID(strings.ToLower(tenant)),
+		Application:  ApplicationID(strings.ToLower(application)),
+		Environment:  Environment(strings.ToLower(environment)),
+		Microservice: MicroserviceID(strings.ToLower(microservice)),
+	}
 }
