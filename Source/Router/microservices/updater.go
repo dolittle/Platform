@@ -5,45 +5,50 @@ import (
 	coreV1 "k8s.io/api/core/v1"
 )
 
-type Updater struct {
+type updater struct {
 	Registry *Registry
+	Config   MicroserviceConfiguration
 }
 
-func (u *Updater) Add(pod *coreV1.Pod) {
+func NewUpdater(registry *Registry, config MicroserviceConfiguration) *updater {
+	return &updater{registry, config}
+}
+
+func (u *updater) Add(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Add").Logger()
 
-	microservice, err := convertPodToMicroservice(pod)
+	microservice, err := convertPodToMicroservice(pod, u.Config)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice).Msg("Updating in registry")
-	u.Registry.Upsert(microservice)
+	logger.Trace().Interface("microservice", microservice.Identity).Msg("Updating in registry")
+	u.Registry.upsert(microservice)
 }
 
-func (u *Updater) Update(pod *coreV1.Pod) {
+func (u *updater) Update(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Update").Logger()
 
-	microservice, err := convertPodToMicroservice(pod)
+	microservice, err := convertPodToMicroservice(pod, u.Config)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice).Msg("Updating in registry")
-	u.Registry.Upsert(microservice)
+	logger.Trace().Interface("microservice", microservice.Identity).Msg("Updating in registry")
+	u.Registry.upsert(microservice)
 }
 
-func (u *Updater) Delete(pod *coreV1.Pod) {
+func (u *updater) Delete(pod *coreV1.Pod) {
 	logger := log.With().Str("component", "Updater").Str("method", "Delete").Logger()
 
-	microservice, err := convertPodToMicroservice(pod)
+	microservice, err := convertPodToMicroservice(pod, u.Config)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice).Msg("")
+		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice).Msg("Deleting from registry")
-	u.Registry.Delete(microservice)
+	logger.Trace().Interface("microservice", microservice.Identity).Msg("Deleting from registry")
+	u.Registry.delete(microservice)
 }

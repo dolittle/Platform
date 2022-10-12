@@ -14,14 +14,14 @@ func NewRegistry() *Registry {
 	}
 }
 
-func (r *Registry) Upsert(info Microservice) {
+func (r *Registry) upsert(info Microservice) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
 	r.microservices[info.Identity] = info
 }
 
-func (r *Registry) Delete(info Microservice) {
+func (r *Registry) delete(info Microservice) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 

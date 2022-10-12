@@ -24,7 +24,13 @@ type Identity struct {
 	Microservice MicroserviceID
 }
 
+type Port struct {
+	Container string
+	Port      string
+}
+
 type Microservice struct {
 	Identity Identity
 	IP       IPAddress
+	Ports    map[Port]int32
 }
