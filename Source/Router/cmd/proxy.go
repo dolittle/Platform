@@ -4,6 +4,7 @@ import (
 	"github.com/dolittle/platform-router/admin"
 	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/http"
+	"github.com/dolittle/platform-router/kubernetes"
 	"github.com/dolittle/platform-router/microservices"
 	"github.com/dolittle/platform-router/proxy"
 	"github.com/gorilla/mux"
@@ -21,8 +22,6 @@ var proxyCmd = &cobra.Command{
 			return err
 		}
 		log.Logger = logger
-		//ctx, stop := context.WithCancel(cmd.Context())
-		//ctx := cmd.Context()
 
 		registry := microservices.NewRegistry()
 		// TODO: Remove after testing
@@ -36,6 +35,26 @@ var proxyCmd = &cobra.Command{
 				}: 6006,
 			},
 		})
+
+		client, err := kubernetes.NewClient()
+		if err != nil {
+			return err
+		}
+
+		converter := &microservices.Converter{
+			Config: config,
+		}
+		go converter.WatchConfig(cmd.Context())
+
+		podWatcher := &kubernetes.PodWatcher{
+			Client:        client,
+			LabelSelector: "tenant,application,environment,microservice,!infrastructure",
+			Handler: &microservices.Updater{
+				Registry:  registry,
+				Converter: converter,
+			},
+		}
+		go podWatcher.Run(time.Minute, cmd.Context())
 
 		router := mux.NewRouter()
 		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry, config)
@@ -53,47 +72,6 @@ var proxyCmd = &cobra.Command{
 		<-cmd.Context().Done()
 		server.Shutdown(10 * time.Second)
 		return nil
-
-		//log.Info().Msg(config.String("listen-on"))
-		//return nil
-
-		//log.Info().Str("address", config.String("listenOn")).Msg("Starting server")
-		//// microservicesConfig, err := microservices.GetConfiguration(viper.GetViper())
-		//microservicesConfig := microservices.Configuration{}
-		//err = config.Unmarshal("microservices", &microservicesConfig)
-		//if err != nil {
-		//	return err
-		//}
-
-		//log.Info().Interface("microservicesConfig", microservicesConfig).Msg("TEST")
-
-		//client, err := kubernetes.NewClient()
-		//if err != nil {
-		//	return err
-		//}
-
-		//kubernetes.StartNewPodWatcher(
-		//	client,
-		//	time.Minute,
-		//	"tenant,application,environment,microservice,!infrastructure",
-		//	microservices.NewUpdater(registry, microservicesConfig.Microservice),
-		//	cmd.Context().Done(),
-		//)
-
-		//router := mux.NewRouter()
-		//admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry)
-		//microservices.AddProxy(router, registry, microservicesConfig.Proxy)
-		//server := &http.Server{
-		//	Handler:      router,
-		//	Addr:         viper.GetString("listenOn"),
-		//	WriteTimeout: 15 * time.Second,
-		//	ReadTimeout:  15 * time.Second,
-		//}
-
-		//go server.ListenAndServe()
-		//<-cmd.Context().Done()
-		//server.Shutdown(cmd.Context())
-		//return nil
 	},
 }
 

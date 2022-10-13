@@ -1,7 +1,10 @@
 package microservices
 
 import (
+	"context"
 	"errors"
+	"github.com/dolittle/platform-router/config"
+	"github.com/rs/zerolog/log"
 	"strings"
 
 	coreV1 "k8s.io/api/core/v1"
@@ -9,34 +12,71 @@ import (
 
 var (
 	ErrPodWasNil              = errors.New("pod was nil")
-	ErrPodMissingTenant       = errors.New("pod is missing tenant-id annotation")
-	ErrPodMissingApplication  = errors.New("pod is missing application-id annotation")
-	ErrPodMissingEnvironment  = errors.New("pod is missing environment label")
-	ErrPodMissingMicroservice = errors.New("pod is missing microservice-id annotation")
+	ErrPodMissingTenant       = errors.New("pod is missing tenant field")
+	ErrPodMissingApplication  = errors.New("pod is missing application field")
+	ErrPodMissingEnvironment  = errors.New("pod is missing environment field")
+	ErrPodMissingMicroservice = errors.New("pod is missing microservice field")
 	ErrPodMissingIPAddress    = errors.New("pod is missing IP address")
 )
 
-func convertPodToMicroservice(pod *coreV1.Pod, config MicroserviceConfiguration) (Microservice, error) {
+type FieldSpecifier struct {
+	Annotations []string
+	Labels      []string
+}
+
+type FieldSpecifiers struct {
+	Tenant       FieldSpecifier
+	Application  FieldSpecifier
+	Environment  FieldSpecifier
+	Microservice FieldSpecifier
+}
+
+type Converter struct {
+	Config *config.Config
+	fields FieldSpecifiers
+}
+
+func (c *Converter) WatchConfig(ctx context.Context) {
+	for {
+		changed := c.Config.Changed()
+
+		newFields := FieldSpecifiers{}
+		if err := c.Config.Unmarshal("kubernetes.fields", &newFields); err != nil {
+			log.Warn().Err(err).Msg("Failed to unmarshal kubernetes fields")
+		} else {
+			c.fields = newFields
+		}
+
+		select {
+		case <-changed:
+			continue
+		case <-ctx.Done():
+			break
+		}
+	}
+}
+
+func (c *Converter) ConvertPodToMicroservice(pod *coreV1.Pod) (Microservice, error) {
 	if pod == nil {
 		return Microservice{}, ErrPodWasNil
 	}
 
-	tenant := pod.Annotations[config.TenantIDAnnotation]
+	tenant := c.getPodField(pod, c.fields.Tenant)
 	if tenant == "" {
 		return Microservice{}, ErrPodMissingTenant
 	}
 
-	application := pod.Annotations[config.ApplicationIDAnnotation]
+	application := c.getPodField(pod, c.fields.Application)
 	if application == "" {
 		return Microservice{}, ErrPodMissingApplication
 	}
 
-	environment := pod.Labels[config.EnvironmentLabel]
+	environment := c.getPodField(pod, c.fields.Environment)
 	if environment == "" {
 		return Microservice{}, ErrPodMissingEnvironment
 	}
 
-	microservice := pod.Annotations[config.MicroserviceIDAnnotation]
+	microservice := c.getPodField(pod, c.fields.Microservice)
 	if microservice == "" {
 		return Microservice{}, ErrPodMissingMicroservice
 	}
@@ -62,6 +102,21 @@ func convertPodToMicroservice(pod *coreV1.Pod, config MicroserviceConfiguration)
 	}
 
 	return info, nil
+
+}
+
+func (c *Converter) getPodField(pod *coreV1.Pod, field FieldSpecifier) string {
+	for _, annotation := range field.Annotations {
+		if value := pod.Annotations[annotation]; value != "" {
+			return value
+		}
+	}
+	for _, label := range field.Labels {
+		if value := pod.Labels[label]; value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func ToIdentity(tenant, application, environment, microservice string) Identity {
