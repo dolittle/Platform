@@ -5,6 +5,7 @@ import (
 	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/microservices"
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -21,15 +22,25 @@ func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tenant := r.Header.Get(rh.Config.String("proxy.tenant-header"))
 	application, environment, microservice, portName := getPathVars(r)
 
+	logger := log.With().
+		Str("method", r.Method).
+		Str("host", r.URL.Host).
+		Str("path", r.URL.Path).
+		Logger()
+
+	logger.Debug().Msg("Handling request")
+
 	pathPrefix, err := getActualPath(r)
 	if err != nil {
 		http.Error(w, "Could not parse path", http.StatusInternalServerError)
+		logger.Debug().Err(err).Msg("Failed to get actual path")
 		return
 	}
 
 	pathSuffix := strings.TrimPrefix(r.URL.Path, pathPrefix)
 	if pathSuffix == r.URL.Path {
 		http.Error(w, "Could not parse path", http.StatusInternalServerError)
+		logger.Debug().Msg("Failed to remove path prefix")
 		return
 	}
 
@@ -37,12 +48,14 @@ func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ms, found := rh.Registry.Get(id)
 	if !found {
 		http.NotFound(w, r)
+		logger.Debug().Interface("id", id).Msg("Could not find microservice")
 		return
 	}
 
 	port, found := rh.Resolver.ResolvePort(portName, ms.Ports)
 	if !found {
 		http.NotFound(w, r)
+		logger.Debug().Str("port", portName).Msg("Could not find port")
 		return
 	}
 
@@ -54,6 +67,7 @@ func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path: path,
 	}
 
+	logger.Debug().Str("target", host).Str("realpath", path).Msg("Routing request to")
 	rh.Proxy.ServeHTTP(w, RequestWithRoute(r, route))
 }
 
