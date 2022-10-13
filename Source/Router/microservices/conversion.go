@@ -48,7 +48,7 @@ func convertPodToMicroservice(pod *coreV1.Pod, config MicroserviceConfiguration)
 
 	info := Microservice{
 		Identity: ToIdentity(tenant, application, environment, microservice),
-		IP:       IPAddress(ipAddress),
+		IP:       ipAddress,
 		Ports:    make(map[Port]int),
 	}
 
@@ -66,9 +66,9 @@ func convertPodToMicroservice(pod *coreV1.Pod, config MicroserviceConfiguration)
 
 func ToIdentity(tenant, application, environment, microservice string) Identity {
 	return Identity{
-		Tenant:       TenantID(strings.ToLower(tenant)),
-		Application:  ApplicationID(strings.ToLower(application)),
-		Environment:  Environment(strings.ToLower(environment)),
-		Microservice: MicroserviceID(strings.ToLower(microservice)),
+		Tenant:       strings.ToLower(tenant),
+		Application:  strings.ToLower(application),
+		Environment:  strings.ToLower(environment),
+		Microservice: strings.ToLower(microservice),
 	}
 }
