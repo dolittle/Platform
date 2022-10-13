@@ -1,39 +1,15 @@
-# ----------------------------------------------------
-# Base
-# ----------------------------------------------------
-FROM golang:1.19.2-alpine3.15 AS build_base
-RUN mkdir -p {/app/dolittle/app/bin}
-WORKDIR /app/dolittle
+FROM golang:1.19.2 AS build
 
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+COPY . /build
+WORKDIR /build
+RUN CGO_ENABLED=0 go build -o /build/platform-proxy
 
-# ----------------------------------------------------
-# Build + Test
-# ----------------------------------------------------
-FROM build_base AS build
-WORKDIR /app/dolittle
-COPY --from=build_base /app/dolittle .
-COPY . .
 
-ENV GOOS linux
-ENV GOARCH amd64
-ENV CGO_ENABLED 0
-RUN go build -ldflags "-s -w " -o app main.go
+FROM gcr.io/distroless/base
 
-# ----------------------------------------------------
-# Release
-# ----------------------------------------------------
-FROM alpine:3.15 AS release
-ENV LC_ALL=en_US.UTF-8
-ENV LC_LANG=en_US.UTF-8
-ENV LC_LANGUAGE=en_US.UTF-8
-
-RUN mkdir -p {/app/bin}
-COPY --from=build /app/dolittle/app /app/bin/app
-
-WORKDIR /app
-ENTRYPOINT ["/app/bin/app"]
-
-EXPOSE 8000
+COPY --from=build /build/platform-proxy /bin/platform-proxy
+COPY config.yml /var/lib/platform-proxy/config.yml
+WORKDIR /var/lib/platform-proxy
+ENTRYPOINT [ "/bin/platform-proxy" ]
+CMD [ "proxy", "--config=config.yml" ]
+EXPOSE 8080

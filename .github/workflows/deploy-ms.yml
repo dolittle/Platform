@@ -41,7 +41,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        context: .
+        context: ${{ github.event.inputs.source-path }}
         file: ${{ github.event.inputs.dockerfile }}
         tags: ${{ github.event.inputs.docker-image-tag }}:${{ github.event.inputs.version }}
     
