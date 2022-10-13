@@ -1,25 +1,19 @@
 package proxy
 
 import (
-	"fmt"
+	"context"
+	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/microservices"
-	"github.com/knadh/koanf"
+	"github.com/rs/zerolog/log"
 )
 
 type PortResolver struct {
-	Config *koanf.Koanf
+	Config          *config.Config
+	configuredPaths Paths
 }
 
 func (pr *PortResolver) ResolvePort(port string, ports microservices.Ports) (int, bool) {
-	path := fmt.Sprintf("paths.%s", port)
-	if !pr.Config.Exists(path) {
-		return 0, false
-	}
-
-	var possiblePorts []microservices.Port
-	if err := pr.Config.Unmarshal(path, &possiblePorts); err != nil {
-		return 0, false
-	}
+	possiblePorts := pr.configuredPaths[port]
 
 	for _, possiblePort := range possiblePorts {
 		port, found := ports[possiblePort]
@@ -29,4 +23,24 @@ func (pr *PortResolver) ResolvePort(port string, ports microservices.Ports) (int
 	}
 
 	return 0, false
+}
+
+func (pr *PortResolver) WatchConfig(ctx context.Context) {
+	for {
+		changed := pr.Config.Changed()
+
+		newPaths := Paths{}
+		if err := pr.Config.Unmarshal("proxy.paths", &newPaths); err != nil {
+			log.Warn().Err(err).Msg("Failed to unmarshal proxy paths")
+		} else {
+			pr.configuredPaths = newPaths
+		}
+
+		select {
+		case <-changed:
+			continue
+		case <-ctx.Done():
+			break
+		}
+	}
 }

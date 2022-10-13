@@ -4,16 +4,17 @@ logger:
 
 proxy:
   port: 8080
+  tenant-header: Tenant-ID
 
-paths:
-  shell:
-    - container: shell
-      port: ws
-  runtime-management:
-    - container: runtime
-      port: management
-    - container: runtime
-      port: http
+  paths:
+    shell:
+      - container: shell
+        port: ws
+    runtime-management:
+      - container: runtime
+        port: management
+      - container: runtime
+        port: http
 
 listenOn: localhost:8080
 microservices:

@@ -30,6 +30,12 @@ func (c *Config) Int(path string) int {
 	return c.k.Int(path)
 }
 
+func (c *Config) Unmarshal(path string, o any) error {
+	c.l.RLock()
+	defer c.l.RUnlock()
+	return c.k.Unmarshal(path, o)
+}
+
 func (c *Config) MarshalYaml() ([]byte, error) {
 	c.l.RLock()
 	defer c.l.RUnlock()

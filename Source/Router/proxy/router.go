@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"fmt"
+	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/microservices"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -13,10 +14,11 @@ type RouterHandler struct {
 	Registry *microservices.Registry
 	Resolver *PortResolver
 	Proxy    *httputil.ReverseProxy
+	Config   *config.Config
 }
 
 func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	tenant := r.Header.Get("Tenant-ID")
+	tenant := r.Header.Get(rh.Config.String("proxy.tenant-header"))
 	application, environment, microservice, portName := getPathVars(r)
 
 	pathPrefix, err := getActualPath(r)

@@ -1,20 +1,24 @@
 package proxy
 
 import (
+	"context"
+	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/microservices"
 	"github.com/gorilla/mux"
-	"github.com/knadh/koanf"
 	"net/http/httputil"
 )
 
-func AddApi(router *mux.Router, registry *microservices.Registry, config *koanf.Koanf) {
+func AddApi(router *mux.Router, registry *microservices.Registry, config *config.Config, ctx context.Context) {
+	resolver := &PortResolver{
+		Config: config,
+	}
 	router.PathPrefix(RouterPath).Handler(RouterHandler{
 		Registry: registry,
-		Resolver: &PortResolver{
-			Config: config,
-		},
+		Resolver: resolver,
 		Proxy: &httputil.ReverseProxy{
 			Director: director,
 		},
+		Config: config,
 	})
+	go resolver.WatchConfig(ctx)
 }

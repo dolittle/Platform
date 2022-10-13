@@ -5,6 +5,7 @@ import (
 	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/http"
 	"github.com/dolittle/platform-router/microservices"
+	"github.com/dolittle/platform-router/proxy"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -38,14 +39,8 @@ var proxyCmd = &cobra.Command{
 
 		router := mux.NewRouter()
 		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry, config)
-		//proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config)
+		proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config, cmd.Context())
 
-		//server := &http.Server{
-		//	Handler:      router,
-		//	Addr:         fmt.Sprintf(":%d", config.Int("proxy.port")),
-		//	WriteTimeout: 15 * time.Second,
-		//	ReadTimeout:  15 * time.Second,
-		//}
 		server := &http.ReloadingServer{
 			Handler:        router,
 			WriteTimeout:   15 * time.Second,
@@ -104,4 +99,5 @@ var proxyCmd = &cobra.Command{
 
 func init() {
 	proxyCmd.Flags().Int("proxy.port", 8080, "The port the proxy server should listen on")
+	proxyCmd.Flags().String("proxy.tenant-header", "Tenant-ID", "The name of the header to use to resolve the request Tenant-ID")
 }
