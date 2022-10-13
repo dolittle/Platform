@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/dolittle/platform-router/admin"
 	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/http"
@@ -9,7 +11,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 var proxyCmd = &cobra.Command{

@@ -1,9 +1,10 @@
 package config
 
 import (
+	"sync"
+
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
-	"sync"
 )
 
 type Config struct {
