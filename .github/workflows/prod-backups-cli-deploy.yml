@@ -10,6 +10,8 @@ on:
     branches:
     - 'main'
     types: [closed]
+    paths:
+    - 'Source/Backups/Cli/**'
 
 jobs:
   deploy:
