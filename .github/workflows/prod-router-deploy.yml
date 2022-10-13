@@ -3,7 +3,7 @@ name: Prod - Router - Deploy
 env:
   SOURCE_PATH: 'Source/Router'
   DEPLOYMENT_NAME: 'prod-router'
-  DOCKER_IMAGE_TAG: 'dolittle/system-router'
+  DOCKER_IMAGE_TAG: 'dolittle/platform-router'
   DOCKER_FILE: 'Source/Router/Dockerfile'
 
 on:
