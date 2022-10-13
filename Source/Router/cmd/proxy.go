@@ -24,17 +24,6 @@ var proxyCmd = &cobra.Command{
 		log.Logger = logger
 
 		registry := microservices.NewRegistry()
-		// TODO: Remove after testing
-		registry.Upsert(microservices.Microservice{
-			Identity: microservices.ToIdentity("", "a", "b", "c"),
-			IP:       "127.0.0.1",
-			Ports: map[microservices.Port]int{
-				microservices.Port{
-					Container: "runtime",
-					Port:      "http",
-				}: 6006,
-			},
-		})
 
 		client, err := kubernetes.NewClient()
 		if err != nil {
