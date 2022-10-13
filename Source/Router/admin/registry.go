@@ -45,7 +45,7 @@ type RegistryHandler struct {
 	Registry *microservices.Registry
 }
 
-func (rh RegistryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (rh RegistryHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	page.Execute(w, rh.Registry.All())
 }

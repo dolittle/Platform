@@ -5,7 +5,6 @@ import (
 	"github.com/dolittle/platform-router/admin"
 	"github.com/dolittle/platform-router/config"
 	"github.com/dolittle/platform-router/microservices"
-	"github.com/dolittle/platform-router/proxy"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -39,8 +38,8 @@ var proxyCmd = &cobra.Command{
 		})
 
 		router := mux.NewRouter()
-		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry)
-		proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config)
+		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry, config)
+		//proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config)
 
 		server := &http.Server{
 			Handler:      router,

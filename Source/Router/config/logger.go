@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/knadh/koanf"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"io"
@@ -11,8 +10,8 @@ import (
 
 // CreateLoggerUsing creates a zerolog.Logger using the supplied cobra.Command output,
 // and configures the logger output and level using 'logger.format' and 'logger.level'
-// from the supplied koanf.Koanf configuration
-func CreateLoggerUsing(cmd *cobra.Command, config *koanf.Koanf) zerolog.Logger {
+// from the supplied Config
+func CreateLoggerUsing(cmd *cobra.Command, config *Config) zerolog.Logger {
 	var out io.Writer
 
 	switch config.String("logger.format") {
