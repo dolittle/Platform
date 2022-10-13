@@ -1,6 +1,8 @@
 {
   "id": "a9a9284c-1737-42d9-80e6-e1a9a82b36dd",
   "name": "Router",
-  "version": "0.0.0",
-  "web": false
+  "version": "1.1.0",
+  "web": false,
+  "commit": "f749240869090bc0b1b00a86714f9b50bd41682e",
+  "built": "2022-10-13T10:51:44.118Z"
 }
