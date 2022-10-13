@@ -8,7 +8,8 @@ import (
 func director(r *http.Request) {
 	route := GetRequestRoute(r)
 
-	log.Trace().
+	log.Debug().
+		Str("component", "Director").
 		Str("host", route.Host).
 		Str("path", route.Path).
 		Msg("Routing request to")

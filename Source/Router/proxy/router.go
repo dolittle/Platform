@@ -23,6 +23,7 @@ func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	application, environment, microservice, portName := getPathVars(r)
 
 	logger := log.With().
+		Str("component", "RouterHandler").
 		Str("method", r.Method).
 		Str("host", r.URL.Host).
 		Str("path", r.URL.Path).
@@ -67,7 +68,6 @@ func (rh RouterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Path: path,
 	}
 
-	logger.Debug().Str("target", host).Str("realpath", path).Msg("Routing request to")
 	rh.Proxy.ServeHTTP(w, RequestWithRoute(r, route))
 }
 
