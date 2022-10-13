@@ -60,3 +60,8 @@ func (u *Updater) Delete(pod *coreV1.Pod) {
 	logger.Trace().Interface("microservice", microservice.Identity).Msg("Deleting from registry")
 	u.Registry.Delete(microservice)
 }
+
+func (u *Updater) Restart() {
+	log.Debug().Str("component", "Updater").Str("method", "Reset").Msg("Resetting registry")
+	u.Registry.Clear()
+}

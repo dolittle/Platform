@@ -15,6 +15,7 @@ type PodHandler interface {
 	Add(pod *coreV1.Pod)
 	Update(pod *coreV1.Pod)
 	Delete(pod *coreV1.Pod)
+	Restart()
 }
 
 type PodWatcher struct {
@@ -36,6 +37,7 @@ loop:
 		informer := factory.Core().V1().Pods().Informer()
 		informer.AddEventHandler(pw)
 
+		pw.Handler.Restart()
 		go informer.Run(change)
 
 		select {

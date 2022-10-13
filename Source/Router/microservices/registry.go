@@ -28,6 +28,13 @@ func (r *Registry) Delete(info Microservice) {
 	delete(r.microservices, info.Identity)
 }
 
+func (r *Registry) Clear() {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
+	r.microservices = make(map[Identity]Microservice)
+}
+
 func (r *Registry) Get(id Identity) (Microservice, bool) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
