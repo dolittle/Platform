@@ -2,6 +2,8 @@ package kubernetes
 
 import (
 	"context"
+	"time"
+
 	"github.com/dolittle/platform-router/config"
 	"github.com/rs/zerolog/log"
 	coreV1 "k8s.io/api/core/v1"
