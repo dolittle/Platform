@@ -5,27 +5,21 @@ import (
 	coreV1 "k8s.io/api/core/v1"
 )
 
-type updater struct {
-	Registry *Registry
-	Config   MicroserviceConfiguration
+type Updater struct {
+	Registry  *Registry
+	Converter *Converter
 }
 
-func NewUpdater(registry *Registry, config MicroserviceConfiguration) *updater {
-	return &updater{registry, config}
-}
+func (u *Updater) Add(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
 
-func (u *updater) Add(pod *coreV1.Pod) {
-	logger := log.With().
-		Str("component", "Updater").
-		Str("method", "Add").
-		Logger()
+	logger := log.With().Str("component", "Updater").Str("method", "Add").Logger()
 
-	microservice, err := convertPodToMicroservice(pod, u.Config)
+	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Interface("microservice", microservice.Identity).
-			Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 
@@ -35,18 +29,16 @@ func (u *updater) Add(pod *coreV1.Pod) {
 	u.Registry.Upsert(microservice)
 }
 
-func (u *updater) Update(pod *coreV1.Pod) {
-	logger := log.With().
-		Str("component", "Updater").
-		Str("method", "Update").
-		Logger()
+func (u *Updater) Update(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
 
-	microservice, err := convertPodToMicroservice(pod, u.Config)
+	logger := log.With().Str("component", "Updater").Str("method", "Update").Logger()
+
+	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Interface("microservice", microservice.Identity).
-			Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 
@@ -56,18 +48,16 @@ func (u *updater) Update(pod *coreV1.Pod) {
 	u.Registry.Upsert(microservice)
 }
 
-func (u *updater) Delete(pod *coreV1.Pod) {
-	logger := log.With().
-		Str("component", "Updater").
-		Str("method", "Delete").
-		Logger()
+func (u *Updater) Delete(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
 
-	microservice, err := convertPodToMicroservice(pod, u.Config)
+	logger := log.With().Str("component", "Updater").Str("method", "Delete").Logger()
+
+	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().
-			Err(err).
-			Interface("microservice", microservice.Identity).
-			Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 

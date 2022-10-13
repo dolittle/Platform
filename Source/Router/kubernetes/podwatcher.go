@@ -1,8 +1,8 @@
 package kubernetes
 
 import (
-	"time"
-
+	"context"
+	"github.com/dolittle/platform-router/config"
 	"github.com/rs/zerolog/log"
 	coreV1 "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,24 +17,36 @@ type PodHandler interface {
 	Delete(pod *coreV1.Pod)
 }
 
-func StartNewPodWatcher(client kubernetes.Interface, resyncPeriod time.Duration, labelSelector string, handler PodHandler, stop <-chan struct{}) {
-	factory := informers.NewSharedInformerFactoryWithOptions(client, resyncPeriod, informers.WithTweakListOptions(func(options *metaV1.ListOptions) {
-		options.LabelSelector = labelSelector
-	}))
-
-	informer := factory.Core().V1().Pods().Informer()
-	informer.AddEventHandler(&eventHandler{
-		handler: handler,
-	})
-
-	go informer.Run(stop)
+type PodWatcher struct {
+	Client                  kubernetes.Interface
+	Config                  *config.Config
+	LabelSelectorConfigPath string
+	Handler                 PodHandler
 }
 
-type eventHandler struct {
-	handler PodHandler
+func (pw *PodWatcher) Run(resyncPeriod time.Duration, ctx context.Context) {
+loop:
+	for {
+		change := pw.Config.Changed()
+
+		factory := informers.NewSharedInformerFactoryWithOptions(pw.Client, resyncPeriod, informers.WithTweakListOptions(func(options *metaV1.ListOptions) {
+			options.LabelSelector = pw.Config.String(pw.LabelSelectorConfigPath)
+		}))
+
+		informer := factory.Core().V1().Pods().Informer()
+		informer.AddEventHandler(pw)
+
+		go informer.Run(change)
+
+		select {
+		case <-ctx.Done():
+			break loop
+		case <-change:
+		}
+	}
 }
 
-func (e *eventHandler) OnAdd(obj interface{}) {
+func (e *PodWatcher) OnAdd(obj interface{}) {
 	pod, ok := obj.(*coreV1.Pod)
 	if !ok {
 		log.Error().
@@ -43,32 +55,23 @@ func (e *eventHandler) OnAdd(obj interface{}) {
 			Msg("Object was not a Pod")
 	}
 
-	e.handler.Add(pod)
+	e.Handler.Add(pod)
 }
 
-func (e *eventHandler) OnUpdate(oldObj, newObj interface{}) {
-	oldPod, oldOk := oldObj.(*coreV1.Pod)
-	newPod, newOk := newObj.(*coreV1.Pod)
+func (e *PodWatcher) OnUpdate(oldObj, newObj interface{}) {
+	pod, ok := newObj.(*coreV1.Pod)
 
-	if !oldOk || !newOk {
+	if !ok {
 		log.Error().
 			Str("component", "PodHandler").
 			Str("method", "OnUpdate").
 			Msg("Object was not a Pod")
 	}
 
-	if oldPod.GetResourceVersion() == newPod.GetResourceVersion() {
-		log.Trace().
-			Str("component", "PodHandler").
-			Str("method", "OnUpdate").
-			Msg("Skipping update because resource version was unchanged")
-		return
-	}
-
-	e.handler.Update(newPod)
+	e.Handler.Update(pod)
 }
 
-func (e *eventHandler) OnDelete(obj interface{}) {
+func (e *PodWatcher) OnDelete(obj interface{}) {
 	pod, ok := obj.(*coreV1.Pod)
 	if !ok {
 		log.Error().
@@ -77,5 +80,5 @@ func (e *eventHandler) OnDelete(obj interface{}) {
 			Msg("Object was not a Pod")
 	}
 
-	e.handler.Delete(pod)
+	e.Handler.Delete(pod)
 }

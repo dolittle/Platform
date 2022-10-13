@@ -16,19 +16,14 @@ proxy:
       - container: runtime
         port: http
 
-listenOn: localhost:8080
-microservices:
-  microservice: 
-    tenant: dolittle.io/tenant-id
-    application: dolittle.io/application-id
-    environment: environment
-    microservice: dolittle.io/microservice-id
-  proxy:
-    tenant-header: Tenant-Id
-    paths:
-      shell:
-        container: shell
-        port: shell-ws
-      runtime/management:
-        container: runtime
-        port: management
+kubernetes:
+  label-selector: tenant,application,environment,microservice,!infrastructure
+  fields:
+    tenant:
+      annotations: [ dolittle.io/tenant-id ]
+    application:
+      annotations: [ dolittle.io/application-id ]
+    environment:
+      labels: [ environment ]
+    microservice:
+      annotations: [ dolittle.io/microservice-id ]
