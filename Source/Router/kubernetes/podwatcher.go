@@ -2,15 +2,17 @@ package kubernetes
 
 import (
 	"context"
+	"time"
+
 	"github.com/dolittle/platform-router/config"
 	"github.com/rs/zerolog/log"
 	coreV1 "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	"time"
 )
 
+// PodHandler defines a system that reacts to when a pod is discovered, updated or deleted by adding, updating or deleting.
 type PodHandler interface {
 	Add(pod *coreV1.Pod)
 	Update(pod *coreV1.Pod)

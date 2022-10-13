@@ -23,7 +23,9 @@ func (u *Updater) Add(pod *coreV1.Pod) {
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice.Identity).Msg("Updating in registry")
+	logger.Trace().
+		Interface("microservice", microservice.Identity).
+		Msg("Updating in registry")
 	u.Registry.Upsert(microservice)
 }
 
@@ -40,7 +42,9 @@ func (u *Updater) Update(pod *coreV1.Pod) {
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice.Identity).Msg("Updating in registry")
+	logger.Trace().
+		Interface("microservice", microservice.Identity).
+		Msg("Updating in registry")
 	u.Registry.Upsert(microservice)
 }
 
@@ -57,7 +61,9 @@ func (u *Updater) Delete(pod *coreV1.Pod) {
 		return
 	}
 
-	logger.Trace().Interface("microservice", microservice.Identity).Msg("Deleting from registry")
+	logger.Trace().
+		Interface("microservice", microservice.Identity).
+		Msg("Deleting from registry")
 	u.Registry.Delete(microservice)
 }
 
