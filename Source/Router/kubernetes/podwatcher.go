@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"github.com/dolittle/platform-router/config"
 	"github.com/rs/zerolog/log"
 	coreV1 "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,20 +18,32 @@ type PodHandler interface {
 }
 
 type PodWatcher struct {
-	Client        kubernetes.Interface
-	LabelSelector string
-	Handler       PodHandler
+	Client                  kubernetes.Interface
+	Config                  *config.Config
+	LabelSelectorConfigPath string
+	Handler                 PodHandler
 }
 
 func (pw *PodWatcher) Run(resyncPeriod time.Duration, ctx context.Context) {
-	factory := informers.NewSharedInformerFactoryWithOptions(pw.Client, resyncPeriod, informers.WithTweakListOptions(func(options *metaV1.ListOptions) {
-		options.LabelSelector = pw.LabelSelector
-	}))
+loop:
+	for {
+		change := pw.Config.Changed()
 
-	informer := factory.Core().V1().Pods().Informer()
-	informer.AddEventHandler(pw)
+		factory := informers.NewSharedInformerFactoryWithOptions(pw.Client, resyncPeriod, informers.WithTweakListOptions(func(options *metaV1.ListOptions) {
+			options.LabelSelector = pw.Config.String(pw.LabelSelectorConfigPath)
+		}))
 
-	informer.Run(ctx.Done())
+		informer := factory.Core().V1().Pods().Informer()
+		informer.AddEventHandler(pw)
+
+		go informer.Run(change)
+
+		select {
+		case <-ctx.Done():
+			break loop
+		case <-change:
+		}
+	}
 }
 
 func (e *PodWatcher) OnAdd(obj interface{}) {

@@ -11,11 +11,15 @@ type Updater struct {
 }
 
 func (u *Updater) Add(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
+
 	logger := log.With().Str("component", "Updater").Str("method", "Add").Logger()
 
 	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 
@@ -24,11 +28,15 @@ func (u *Updater) Add(pod *coreV1.Pod) {
 }
 
 func (u *Updater) Update(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
+
 	logger := log.With().Str("component", "Updater").Str("method", "Update").Logger()
 
 	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 
@@ -37,11 +45,15 @@ func (u *Updater) Update(pod *coreV1.Pod) {
 }
 
 func (u *Updater) Delete(pod *coreV1.Pod) {
+	if pod == nil {
+		return
+	}
+
 	logger := log.With().Str("component", "Updater").Str("method", "Delete").Logger()
 
 	microservice, err := u.Converter.ConvertPodToMicroservice(pod)
 	if err != nil {
-		logger.Error().Err(err).Interface("microservice", microservice.Identity).Msg("")
+		logger.Error().Err(err).Str("name", pod.Name).Str("namespace", pod.Namespace).Msg("")
 		return
 	}
 

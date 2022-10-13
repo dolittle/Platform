@@ -47,8 +47,9 @@ var proxyCmd = &cobra.Command{
 		go converter.WatchConfig(cmd.Context())
 
 		podWatcher := &kubernetes.PodWatcher{
-			Client:        client,
-			LabelSelector: "tenant,application,environment,microservice,!infrastructure",
+			Client:                  client,
+			Config:                  config,
+			LabelSelectorConfigPath: "kubernetes.label-selector",
 			Handler: &microservices.Updater{
 				Registry:  registry,
 				Converter: converter,
@@ -78,4 +79,5 @@ var proxyCmd = &cobra.Command{
 func init() {
 	proxyCmd.Flags().Int("proxy.port", 8080, "The port the proxy server should listen on")
 	proxyCmd.Flags().String("proxy.tenant-header", "Tenant-ID", "The name of the header to use to resolve the request Tenant-ID")
+	proxyCmd.Flags().String("kubernetes.label-selector", "tenant,application,environment,microservice,!infrastructure", "The label selector that will be used by the Kubernetes informer to only watch relevant Microservice pods")
 }

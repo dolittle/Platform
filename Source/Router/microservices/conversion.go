@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	ErrPodWasNil              = errors.New("pod was nil")
 	ErrPodMissingTenant       = errors.New("pod is missing tenant field")
 	ErrPodMissingApplication  = errors.New("pod is missing application field")
 	ErrPodMissingEnvironment  = errors.New("pod is missing environment field")
@@ -57,10 +56,6 @@ func (c *Converter) WatchConfig(ctx context.Context) {
 }
 
 func (c *Converter) ConvertPodToMicroservice(pod *coreV1.Pod) (Microservice, error) {
-	if pod == nil {
-		return Microservice{}, ErrPodWasNil
-	}
-
 	tenant := c.getPodField(pod, c.fields.Tenant)
 	if tenant == "" {
 		return Microservice{}, ErrPodMissingTenant

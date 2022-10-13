@@ -17,6 +17,7 @@ proxy:
         port: http
 
 kubernetes:
+  label-selector: tenant,application,environment,microservice,!infrastructure
   fields:
     tenant:
       annotations: [ dolittle.io/tenant-id ]
