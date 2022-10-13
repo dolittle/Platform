@@ -18,6 +18,7 @@ func LoadConfigFor(cmd *cobra.Command) (*Config, error) {
 	c := &Config{
 		k: koanf.New("."),
 		l: sync.RWMutex{},
+		c: make(chan struct{}),
 	}
 
 	configFiles, _ := cmd.Flags().GetStringSlice("config")
@@ -42,6 +43,8 @@ func LoadConfigFor(cmd *cobra.Command) (*Config, error) {
 			}
 
 			log.Info().Str("path", configFile).Msg("Re-loaded config from file")
+			close(c.c)
+			c.c = make(chan struct{})
 		})
 	}
 

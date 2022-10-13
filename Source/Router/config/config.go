@@ -9,6 +9,13 @@ import (
 type Config struct {
 	k *koanf.Koanf
 	l sync.RWMutex
+	c chan struct{}
+}
+
+func (c *Config) Changed() <-chan struct{} {
+	c.l.RLock()
+	defer c.l.RUnlock()
+	return c.c
 }
 
 func (c *Config) String(path string) string {

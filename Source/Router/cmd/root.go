@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"github.com/spf13/cobra"
+	"os"
+	"os/signal"
 )
 
 var rootCmd = &cobra.Command{
@@ -14,7 +17,8 @@ var rootCmd = &cobra.Command{
 
 // Execute starts the cobra.Command CLI execution
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	cobra.CheckErr(rootCmd.ExecuteContext(ctx))
 }
 
 func init() {

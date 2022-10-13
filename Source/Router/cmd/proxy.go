@@ -1,14 +1,13 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/dolittle/platform-router/admin"
 	"github.com/dolittle/platform-router/config"
+	"github.com/dolittle/platform-router/http"
 	"github.com/dolittle/platform-router/microservices"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"net/http"
 	"time"
 )
 
@@ -41,15 +40,24 @@ var proxyCmd = &cobra.Command{
 		admin.AddApi(router.PathPrefix("/admin").Subrouter(), registry, config)
 		//proxy.AddApi(router.PathPrefix("/proxy").Subrouter(), registry, config)
 
-		server := &http.Server{
-			Handler:      router,
-			Addr:         fmt.Sprintf(":%d", config.Int("proxy.port")),
-			WriteTimeout: 15 * time.Second,
-			ReadTimeout:  15 * time.Second,
+		//server := &http.Server{
+		//	Handler:      router,
+		//	Addr:         fmt.Sprintf(":%d", config.Int("proxy.port")),
+		//	WriteTimeout: 15 * time.Second,
+		//	ReadTimeout:  15 * time.Second,
+		//}
+		server := &http.ReloadingServer{
+			Handler:        router,
+			WriteTimeout:   15 * time.Second,
+			ReadTimeout:    15 * time.Second,
+			Config:         config,
+			PortConfigPath: "proxy.port",
 		}
 
-		log.Info().Str("address", server.Addr).Msg("Starting server")
-		return server.ListenAndServe()
+		go server.ListenAndServe()
+		<-cmd.Context().Done()
+		server.Shutdown(10 * time.Second)
+		return nil
 
 		//log.Info().Msg(config.String("listen-on"))
 		//return nil
