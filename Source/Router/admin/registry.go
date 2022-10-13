@@ -23,6 +23,7 @@ var page = template.Must(template.New("page").Parse(`
                     <th>Environment:</th>
                     <th>Microservice:</th>
                     <th>IP address:</th>
+                    <th>Ports:</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,6 +34,11 @@ var page = template.Must(template.New("page").Parse(`
                     <td>{{ .Identity.Environment }}</td>
                     <td>{{ .Identity.Microservice }}</td>
                     <td>{{ .IP }}</td>
+                    <td>
+                    {{ range $key, $port := .Ports }}
+                        <div>{{ $key.Container }}:{{ $key.Port }}={{ $port }}</div>
+                    {{ end }}
+                    </td>
                 </tr>
             {{ end }}
             </tbody>
