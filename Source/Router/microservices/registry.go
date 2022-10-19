@@ -1,46 +1,59 @@
 package microservices
 
-import "sync"
+import (
+	"k8s.io/apimachinery/pkg/types"
+	"sync"
+)
+
+type entry struct {
+	info        Microservice
+	newestPodID types.UID
+}
 
 type Registry struct {
-	microservices map[Identity]Microservice
+	microservices map[Identity]entry
 	lock          sync.RWMutex
 }
 
 func NewRegistry() *Registry {
 	return &Registry{
-		microservices: make(map[Identity]Microservice),
+		microservices: make(map[Identity]entry),
 		lock:          sync.RWMutex{},
 	}
 }
 
-func (r *Registry) Upsert(info Microservice) {
+func (r *Registry) Upsert(info Microservice, podID types.UID) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.microservices[info.Identity] = info
+	r.microservices[info.Identity] = entry{
+		info:        info,
+		newestPodID: podID,
+	}
 }
 
-func (r *Registry) Delete(info Microservice) {
+func (r *Registry) Delete(info Microservice, podID types.UID) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	delete(r.microservices, info.Identity)
+	if entry := r.microservices[info.Identity]; entry.newestPodID == podID {
+		delete(r.microservices, info.Identity)
+	}
 }
 
 func (r *Registry) Clear() {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.microservices = make(map[Identity]Microservice)
+	r.microservices = make(map[Identity]entry)
 }
 
 func (r *Registry) Get(id Identity) (Microservice, bool) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	info, ok := r.microservices[id]
-	return info, ok
+	entry, ok := r.microservices[id]
+	return entry.info, ok
 }
 
 func (r *Registry) All() []Microservice {
@@ -48,8 +61,8 @@ func (r *Registry) All() []Microservice {
 	defer r.lock.RUnlock()
 
 	infos := make([]Microservice, 0, len(r.microservices))
-	for _, info := range r.microservices {
-		infos = append(infos, info)
+	for _, entry := range r.microservices {
+		infos = append(infos, entry.info)
 	}
 	return infos
 }
