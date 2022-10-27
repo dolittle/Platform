@@ -1,0 +1,10 @@
+apiVersion: dolittle.io/v1alpha1
+kind: Microservice
+metadata:
+  namespace: default
+  name: my-ms
+spec:
+  parameters:
+    runtimeVersion: 8.7.0
+  compositionRef:
+    name: dolittle-microservice

@@ -1,0 +1,44 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: dolittle-microservice
+  labels:
+    crossplane.io/xrd: xmicroservices.dolittle.io
+spec:
+  writeConnectionSecretsToNamespace: system-crossplane
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: XMicroservice
+  resources:
+  - name: deployment
+    base:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: nginx-deployment
+        namespace: default
+        labels:
+          app: nginx
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: nginx
+        template:
+          metadata:
+            labels:
+              app: nginx
+          spec:
+            containers:
+            - name: runtime
+              image: dolittle/runtime:8.4.1
+              ports:
+              - containerPort: 80
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.runtimeVersion
+      toFieldPath: spec.template.spec.containers[0].image
+      transforms:
+      - type: string
+        string:
+          fmt: "dolittle/runtime:%s"
