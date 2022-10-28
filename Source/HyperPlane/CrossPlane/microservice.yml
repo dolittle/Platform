@@ -41,8 +41,7 @@ spec:
                     - containerPort: 80
     patches:
     - fromFieldPath: spec.runtime.version
-      # toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
-      toFieldPath: spec.template.spec.containers[0].image
+      toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
       transforms:
       - type: string
         string:
