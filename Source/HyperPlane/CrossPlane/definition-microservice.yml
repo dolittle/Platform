@@ -3,13 +3,21 @@ kind: CompositeResourceDefinition
 metadata:
   name: xmicroservices.dolittle.io
 spec:
+  defaultCompositionRef:
+    name: microservice-simple
   group: dolittle.io
+  
   names:
     kind: XMicroservice
+    singular: xmicroservice 
     plural: xmicroservices
+
   claimNames:
     kind: Microservice
+    singular: microservice
     plural: microservices
+    shortNames:
+    - ms
   
   versions:
   - name: v1alpha1
@@ -22,12 +30,31 @@ spec:
           spec:
             type: object
             properties:
-              parameters:
+              metadata:
                 type: object
                 properties:
-                  runtimeVersion:
+                  microservice:
+                    type: string
+                  microservice-id:
+                    type: string
+                  application:
+                    type: string
+                  application-id:
+                    type: string
+                  tenant:
+                    type: string
+                  tenant-id:
+                    type: string
+                  environment:
                     type: string
                 required:
-                - runtimeVersion
+                - microservice
+              runtime:
+                type: object
+                properties:
+                  version:
+                    type: string
+                required:
+                - version
             required:
-            - parameters
+            - runtime
