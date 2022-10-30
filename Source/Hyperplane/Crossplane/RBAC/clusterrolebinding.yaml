@@ -2,12 +2,15 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: crossplane-rbac-manager
+  name: crossplane
+  labels:
+    system: Hyperplane
+    service: Crossplane
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: crossplane-rbac-manager
+  name: crossplane
 subjects:
 - kind: ServiceAccount
-  name: rbac-manager
+  name: crossplane
   namespace: system-crossplane

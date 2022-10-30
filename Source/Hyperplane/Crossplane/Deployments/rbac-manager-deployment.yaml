@@ -4,17 +4,24 @@ kind: Deployment
 metadata:
   name: crossplane-rbac-manager
   namespace: system-crossplane
+  labels:
+    system: Hyperplane
+    service: Crossplane
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: crossplane-rbac-manager
+      system: Hyperplane
+      service: Crossplane
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
         app: crossplane-rbac-manager
+        system: Hyperplane
+        service: Crossplane
     spec:
       securityContext:
         {}

@@ -3,6 +3,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: crossplane-admin
+  labels:
+    system: Hyperplane
+    service: Crossplane
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
@@ -11,7 +14,10 @@ aggregationRule:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: crossplane-edit  
+  name: crossplane-edit
+  labels:
+    system: Hyperplane
+    service: Crossplane
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
@@ -21,6 +27,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: crossplane-view
+  labels:
+    system: Hyperplane
+    service: Crossplane
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
@@ -30,6 +39,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: crossplane-browse
+  labels:
+    system: Hyperplane
+    service: Crossplane
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
@@ -41,6 +53,8 @@ metadata:
   name: crossplane:aggregate-to-admin
   labels:
     rbac.crossplane.io/aggregate-to-admin: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane administrators have access to view events.
 - apiGroups: [""]
@@ -82,6 +96,8 @@ metadata:
   name: crossplane:aggregate-to-edit
   labels:
     rbac.crossplane.io/aggregate-to-edit: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane editors have access to view events.
 - apiGroups: [""]
@@ -112,6 +128,8 @@ metadata:
   name: crossplane:aggregate-to-view
   labels:
     rbac.crossplane.io/aggregate-to-view: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane viewers have access to view events.
 - apiGroups: [""]
@@ -138,6 +156,8 @@ metadata:
   name: crossplane:aggregate-to-browse
   labels:
     rbac.crossplane.io/aggregate-to-browse: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane browsers have access to view events.
 - apiGroups: [""]
@@ -160,6 +180,8 @@ metadata:
   labels:
     rbac.crossplane.io/aggregate-to-ns-admin: "true"
     rbac.crossplane.io/base-of-ns-admin: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane namespace admins have access to view events.
 - apiGroups: [""]
@@ -188,6 +210,8 @@ metadata:
   labels:
     rbac.crossplane.io/aggregate-to-ns-edit: "true"
     rbac.crossplane.io/base-of-ns-edit: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane namespace editors have access to view events.
 - apiGroups: [""]
@@ -206,6 +230,8 @@ metadata:
   labels:
     rbac.crossplane.io/aggregate-to-ns-view: "true"
     rbac.crossplane.io/base-of-ns-view: "true"
+    system: Hyperplane
+    service: Crossplane
 rules:
 # Crossplane namespace viewers have access to view events.
 - apiGroups: [""]
@@ -216,6 +242,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: crossplane-admin
+  labels:
+    system: Hyperplane
+    service: Crossplane
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

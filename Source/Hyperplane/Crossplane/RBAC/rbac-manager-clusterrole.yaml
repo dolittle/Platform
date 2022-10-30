@@ -3,6 +3,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: crossplane-rbac-manager
+  labels:
+    system: Hyperplane
+    service: Crossplane
 rules:
 - apiGroups:
   - ""

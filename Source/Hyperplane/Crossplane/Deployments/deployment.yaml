@@ -4,17 +4,24 @@ kind: Deployment
 metadata:
   name: crossplane
   namespace: system-crossplane
+  labels:
+    system: Hyperplane
+    service: Crossplane
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: crossplane
+      system: Hyperplane
+      service: Crossplane
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
         app: crossplane
+        system: Hyperplane
+        service: Crossplane
     spec:
       securityContext:
         {}
