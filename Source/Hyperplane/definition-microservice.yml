@@ -35,33 +35,49 @@ spec:
                 properties:
                   application:
                     type: string
+                    description: The application name
                   application-id:
                     type: string
+                    description: The application GUID
                   environment:
                     type: string
+                    description: The PascalCased environment the microservice is running in
                   microservice:
                     type: string
+                    description: The PascalCased name of the microservice
                   microservice-id:
                     type: string
-                  tenant:
+                    description: The microservice GUID
+                  customer:
                     type: string
-                  tenant-id:
+                    description: The pascal-cased name of the customer
+                  customer-id:
                     type: string
+                    description: The customer GUID
                 required:
                 - application
                 - application-id
                 - environment
                 - microservice
                 - microservice-id
-                - tenant
-                - tenant-id
-              runtime:
+                - customer
+                - customer-id
+              deployment:
                 type: object
                 properties:
-                  version:
+                  name:
                     type: string
+                    description: The deployment name. Usually <environment>-<microservice>
+                  runtime:
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                        description: The semantic version of the Dolittle Runtime to use 
+                    required:
+                    - version
                 required:
-                - version
+                - runtime              
             required:
             - metadata
-            - runtime
+            - deployment
