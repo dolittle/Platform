@@ -33,22 +33,28 @@ spec:
               metadata:
                 type: object
                 properties:
-                  microservice:
-                    type: string
-                  microservice-id:
-                    type: string
                   application:
                     type: string
                   application-id:
+                    type: string
+                  environment:
+                    type: string
+                  microservice:
+                    type: string
+                  microservice-id:
                     type: string
                   tenant:
                     type: string
                   tenant-id:
                     type: string
-                  environment:
-                    type: string
                 required:
+                - application
+                - application-id
+                - environment
                 - microservice
+                - microservice-id
+                - tenant
+                - tenant-id
               runtime:
                 type: object
                 properties:
@@ -57,4 +63,5 @@ spec:
                 required:
                 - version
             required:
+            - metadata
             - runtime
