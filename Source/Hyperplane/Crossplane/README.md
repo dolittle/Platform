@@ -1,3 +1,5 @@
+
+
 ### Install
 Apply namespace
 Apply roles and role bindings
@@ -20,3 +22,7 @@ it is possible to just edit that resource by deleting the finalizers.
 - Delete Crossplane
 - Delete crossplane CRDs
 - Delete dolittle CRDs
+
+## References
+- Versioning of resources: https://crossplane.io/docs/v1.10/concepts/managed-resources.html#versioning
+- 
