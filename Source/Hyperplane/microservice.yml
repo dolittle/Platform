@@ -45,12 +45,9 @@ spec:
       - type: string
         string:
           fmt: "dolittle/runtime:%s"
-    - fromFieldPath: spec.runtime.version
-      toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
-      transforms:
-      - type: string
-        string:
-          fmt: "dolittle/runtime:%s"
+    - fromFieldPath: #Get namespace from patch set
+      toFieldPath: spec.forProvider.manifest.namespace
+
   patchSets:
   - name: namespace
     patches:
