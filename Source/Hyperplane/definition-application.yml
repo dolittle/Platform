@@ -1,0 +1,61 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xapplications.dolittle.io
+spec:
+  defaultCompositionRef:
+    name: application
+  group: dolittle.io
+  
+  names:
+    kind: XApplication
+    singular: xapplication 
+    plural: xapplications
+
+  claimNames:
+    kind: Application
+    singular: application
+    plural: applications
+    shortNames:
+    - app
+  
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          metadata:
+            type: object
+            properties:
+              labels:
+                type: object
+                properties:
+                  tenant:
+                    type: string
+                    description: The pascal-cased name of the customer
+                  application:
+                    type: string
+                    description: The application name
+                required:
+                - tenant
+                - application
+              annotations:
+                type: object
+                properties:
+                  dolittle.io/tenant-id:
+                    type: string
+                    description: The customer GUID
+                  dolittle.io/application-id:
+                    type: string
+                    description: The application GUID
+                required:
+                - dolittle.io/tenant-id
+                - dolittle.io/application-id
+            required:
+            - labels
+            - annotations
+        required:
+        - metadata

@@ -1,0 +1,50 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: application
+  labels:
+    crossplane.io/xrd: xapplications.dolittle.io
+spec:
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: XApplication
+  patchSets:
+  - name: metadata
+    patches:
+    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: metadata.annotations[dolittle.io/tenant-id]
+    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/tenant-id]
+    - fromFieldPath: metadata.annotations[dolittle.io/application-id]
+      toFieldPath: metadata.annotations[dolittle.io/application-id]
+    - fromFieldPath: metadata.annotations[dolittle.io/application-id]
+      toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/application-id]
+    - fromFieldPath: metadata.labels.tenant
+      toFieldPath: metadata.labels.tenant
+    - fromFieldPath: metadata.labels.tenant
+      toFieldPath: spec.forProvider.manifest.metadata.labels.tenant
+    - fromFieldPath: metadata.labels.application
+      toFieldPath: metadata.labels.application
+    - fromFieldPath: metadata.labels.application
+      toFieldPath: spec.forProvider.manifest.metadata.labels.application
+  resources:
+  - name: namespace
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Namespace
+    patches:
+    - type: PatchSet
+      patchSetName: metadata
+    - fromFieldPath: metadata.annotations[dolittle.io/application-id]
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "application-%s"
