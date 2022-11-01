@@ -8,6 +8,21 @@ spec:
   compositeTypeRef:
     apiVersion: dolittle.io/v1alpha1
     kind: XMicroservice
+  patchSets:
+  - name: metadata
+    patches:
+    - fromFieldPath: spec.metadata.labels
+      toFieldPath: metadata.labels
+    - fromFieldPath: spec.metadata.annotations
+      toFieldPath: metadata.annotations
+    - fromFieldPath: spec.metadata
+      toFieldPath: spec.forProvider.manifest.metadata
+    - fromFieldPath: spec.metadata.annotations[dolittle.io/application-id]
+      toFieldPath: spec.forProvider.manifest.metadata.namespace
+      transforms:
+      - type: string
+        string:
+          fmt: "application-%s"
   resources:
   - name: deployment
     base:
@@ -20,61 +35,26 @@ spec:
           manifest:
             apiVersion: apps/v1
             kind: Deployment
-            metadata:
-              name: dolittle-ms-deployment
-              labels:
-                app: nginx
             spec:
               replicas: 1
-              selector:
-                matchLabels:
-                  app: nginx
               template:
-                metadata:
-                  labels:
-                    app: nginx
                 spec:
                   containers:
                   - name: runtime
                     ports:
                     - containerPort: 80
     patches:
-    - fromFieldPath: spec.runtime.version
+    - type: PatchSet
+      patchSetName: metadata
+    - fromFieldPath: spec.metadata
+      toFieldPath: spec.forProvider.manifest.spec.template.metadata
+    - fromFieldPath: spec.metadata.labels
+      toFieldPath: spec.forProvider.manifest.spec.selector.matchLabels
+    - fromFieldPath: spec.deployment.name
+      toFieldPath: spec.forProvider.manifest.metadata.name
+    - fromFieldPath: spec.deployment.runtime.version
       toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
       transforms:
       - type: string
         string:
           fmt: "dolittle/runtime:%s"
-    - fromFieldPath: #Get namespace from patch set
-      toFieldPath: spec.forProvider.manifest.namespace
-
-  patchSets:
-  - name: namespace
-    patches:
-    - fromFieldPath: spec.metadata.application-id
-      transforms:
-      - type: string
-        string:
-          fmt: "application-%s"
-  - name: name
-    patches:
-    - type: CombineFromComposite
-      combine:
-        variables:
-        - fromFieldPath: spec.metadata.environment
-          transforms:
-          - type: string
-            string:
-              type: Convert
-              convert: ToLower
-        - fromFieldPath: spec.metadata.microservice
-          transforms:
-          - type: string
-            string:
-              type: Convert
-              convert: ToLower
-        strategy: string
-        string:
-          fmt: "%s-%s"
-      policy:
-        fromFieldPath: Required

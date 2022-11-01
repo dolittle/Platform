@@ -33,35 +33,46 @@ spec:
               metadata:
                 type: object
                 properties:
-                  application:
-                    type: string
-                    description: The application name
-                  application-id:
-                    type: string
-                    description: The application GUID
-                  environment:
-                    type: string
-                    description: The PascalCased environment the microservice is running in
-                  microservice:
-                    type: string
-                    description: The PascalCased name of the microservice
-                  microservice-id:
-                    type: string
-                    description: The microservice GUID
-                  customer:
-                    type: string
-                    description: The pascal-cased name of the customer
-                  customer-id:
-                    type: string
-                    description: The customer GUID
+                  labels:
+                    type: object
+                    properties:
+                      application:
+                        type: string
+                        description: The application name
+                      environment:
+                        type: string
+                        description: The PascalCased environment the microservice is running in
+                      microservice:
+                        type: string
+                        description: The PascalCased name of the microservice
+                      tenant:
+                        type: string
+                        description: The pascal-cased name of the customer
+                    required:
+                    - application
+                    - environment
+                    - microservice
+                    - tenant
+
+                  annotations:
+                    type: object
+                    properties:
+                      dolittle.io/application-id:
+                        type: string
+                        description: The application GUID
+                      dolittle.io/microservice-id:
+                        type: string
+                        description: The microservice GUID
+                      dolittle.io/tenant-id:
+                        type: string
+                        description: The customer GUID
+                    required:
+                    - dolittle.io/application-id
+                    - dolittle.io/microservice-id
+                    - dolittle.io/tenant-id
                 required:
-                - application
-                - application-id
-                - environment
-                - microservice
-                - microservice-id
-                - customer
-                - customer-id
+                - labels
+                - annotations
               deployment:
                 type: object
                 properties:
@@ -77,6 +88,7 @@ spec:
                     required:
                     - version
                 required:
+                - name              
                 - runtime              
             required:
             - metadata
