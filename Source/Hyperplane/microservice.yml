@@ -11,13 +11,13 @@ spec:
   patchSets:
   - name: metadata
     patches:
-    - fromFieldPath: spec.metadata.labels
-      toFieldPath: metadata.labels
-    - fromFieldPath: spec.metadata.annotations
-      toFieldPath: metadata.annotations
-    - fromFieldPath: spec.metadata
-      toFieldPath: spec.forProvider.manifest.metadata
-    - fromFieldPath: spec.metadata.annotations[dolittle.io/application-id]
+    # - fromFieldPath: metadata.labels
+    #   toFieldPath: metadata.labels
+    # - fromFieldPath: metadata.annotations
+    #   toFieldPath: metadata.annotations
+    # - fromFieldPath: metadata
+    #   toFieldPath: spec.forProvider.manifest.metadata
+    - fromFieldPath: metadata.annotations[dolittle.io/application-id]
       toFieldPath: spec.forProvider.manifest.metadata.namespace
       transforms:
       - type: string
@@ -43,13 +43,19 @@ spec:
                   - name: runtime
                     ports:
                     - containerPort: 80
+        references:
+        - patchesFrom:
+            apiVersion: v1
+            # dependsOn: Make it depend on some sort of environment crossplane CRD and get the other labels from it
+            kind: Namespace
+            fieldPath: metadata.labels
+          toFieldPath: spec.forProvider.manifest.metadata.labels
+        
     patches:
     - type: PatchSet
       patchSetName: metadata
-    - fromFieldPath: spec.metadata
-      toFieldPath: spec.forProvider.manifest.spec.template.metadata
-    - fromFieldPath: spec.metadata.labels
-      toFieldPath: spec.forProvider.manifest.spec.selector.matchLabels
+    - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+      toFieldPath: spec.references[0].patchesFrom.name
     - fromFieldPath: spec.deployment.name
       toFieldPath: spec.forProvider.manifest.metadata.name
     - fromFieldPath: spec.deployment.runtime.version
