@@ -1,4 +1,5 @@
-
+## Notes
+Do not modify resource definition while there are claims using it.
 
 ### Install
 Apply namespace
