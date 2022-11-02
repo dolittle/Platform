@@ -1,5 +1,7 @@
 ## Notes
-Do not modify resource definition while there are claims using it.
+- Do not modify resource definition while there are claims using it.
+
+- When setting the name of a managed resource (at least for the kubernetes provider Object type) one should set the metadata.name field
 
 ### Install
 Apply namespace

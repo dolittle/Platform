@@ -9,20 +9,23 @@ spec:
     apiVersion: dolittle.io/v1alpha1
     kind: XApplication
   patchSets:
-  - name: metadata
+  - name: references
     patches:
     - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
-      toFieldPath: metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: spec.references[0].patchesFrom.name
     - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
-      toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: spec.references[1].patchesFrom.name
+    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: spec.references[2].patchesFrom.name
+    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
+      toFieldPath: spec.references[3].patchesFrom.name
+      
+  - name: metadata
+    patches:
     - fromFieldPath: metadata.annotations[dolittle.io/application-id]
       toFieldPath: metadata.annotations[dolittle.io/application-id]
     - fromFieldPath: metadata.annotations[dolittle.io/application-id]
       toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/application-id]
-    - fromFieldPath: metadata.labels.tenant
-      toFieldPath: metadata.labels.tenant
-    - fromFieldPath: metadata.labels.tenant
-      toFieldPath: spec.forProvider.manifest.metadata.labels.tenant
     - fromFieldPath: metadata.labels.application
       toFieldPath: metadata.labels.application
     - fromFieldPath: metadata.labels.application
@@ -39,7 +42,36 @@ spec:
           manifest:
             apiVersion: v1
             kind: Namespace
+        references:
+        - patchesFrom:
+            apiVersion: dolittle.io/v1alpha1
+            kind: Customer
+            fieldPath: metadata.labels
+            namespace: system-customers
+          toFieldPath: metadata.labels
+        - patchesFrom:
+            apiVersion: dolittle.io/v1alpha1
+            kind: Customer
+            fieldPath: metadata.labels
+            namespace: system-customers
+          toFieldPath: spec.forProvider.manifest.metadata.labels
+        - patchesFrom:
+            apiVersion: dolittle.io/v1alpha1
+            kind: Customer
+            fieldPath: metadata.annotations
+            namespace: system-customers
+          toFieldPath: metadata.annotations
+        - patchesFrom:
+            apiVersion: dolittle.io/v1alpha1
+            kind: Customer
+            fieldPath: metadata.annotations
+            namespace: system-customers
+          toFieldPath: spec.forProvider.manifest.metadata.annotations
+        
+
     patches:
+    - type: PatchSet
+      patchSetName: references
     - type: PatchSet
       patchSetName: metadata
     - fromFieldPath: metadata.annotations[dolittle.io/application-id]

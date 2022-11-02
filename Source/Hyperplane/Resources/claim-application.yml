@@ -1,11 +1,11 @@
 apiVersion: dolittle.io/v1alpha1
 kind: Application
 metadata:
-  name: my-app
-  # namespace: tenant-<guid> Could live in the customer namespace
+  name: fd1e1c03-47c2-45b0-9198-f98e60c7878d
+  namespace: tenant-dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
   annotations:
-    dolittle.io/application-id: fd1e1c03-47c2-45b0-9198-f98e60c7878d
     dolittle.io/tenant-id: dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
+    dolittle.io/application-id: fd1e1c03-47c2-45b0-9198-f98e60c7878d
   labels:
     tenant: Sindre
     application: MyApp
