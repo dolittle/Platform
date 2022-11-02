@@ -1,6 +1,12 @@
 
 ## ytt
-Try using ytt https://carvel.dev/ytt/docs/v0.43.0/ for templating
+Try using ytt https://carvel.dev/ytt/docs/v0.43.0/ for templating.
+
+### Installation
+https://carvel.dev/ytt/docs/v0.43.0/install/
+
+### Applying compositions
+ytt -f <composition> -f ytt | k apply -f- 
 
 ## Notes
 - Do not modify resource definition while there are claims using it.
