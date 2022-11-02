@@ -1,0 +1,9 @@
+apiVersion: dolittle.io/v1alpha1
+kind: XCustomer
+metadata:
+  name: dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
+  annotations:
+    dolittle.io/customer-id: dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
+  labels:
+    customer: Sindre
+spec: {}

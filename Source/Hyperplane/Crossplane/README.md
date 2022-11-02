@@ -30,6 +30,10 @@ it is possible to just edit that resource by deleting the finalizers.
 - Delete crossplane CRDs
 - Delete dolittle CRDs
 
+### Deleting weirdness
+
+When deleting an XR (Composite resource) it will delete the XR before deleting its managed resources.
+
 ## References
 - Versioning of resources: https://crossplane.io/docs/v1.10/concepts/managed-resources.html#versioning
 - 

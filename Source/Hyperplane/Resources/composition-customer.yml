@@ -11,14 +11,14 @@ spec:
   patchSets:
   - name: metadata
     patches:
-    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
-      toFieldPath: metadata.annotations[dolittle.io/tenant-id]
-    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
-      toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/tenant-id]
-    - fromFieldPath: metadata.labels.tenant
-      toFieldPath: metadata.labels.tenant
-    - fromFieldPath: metadata.labels.tenant
-      toFieldPath: spec.forProvider.manifest.metadata.labels.tenant
+    - fromFieldPath: metadata.annotations[dolittle.io/customer-id]
+      toFieldPath: metadata.annotations[dolittle.io/customer-id]
+    - fromFieldPath: metadata.annotations[dolittle.io/customer-id]
+      toFieldPath: spec.forProvider.manifest.metadata.annotations[dolittle.io/customer-id]
+    - fromFieldPath: metadata.labels.customer
+      toFieldPath: metadata.labels.customer
+    - fromFieldPath: metadata.labels.customer
+      toFieldPath: spec.forProvider.manifest.metadata.labels.customer
   resources:
   - name: namespace
     base:
@@ -34,9 +34,9 @@ spec:
     patches:
     - type: PatchSet
       patchSetName: metadata
-    - fromFieldPath: metadata.annotations[dolittle.io/tenant-id]
+    - fromFieldPath: metadata.annotations[dolittle.io/customer-id]
       toFieldPath: metadata.name
       transforms:
       - type: string
         string:
-          fmt: "tenant-%s"
+          fmt: "customer-%s"

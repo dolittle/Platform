@@ -6,17 +6,10 @@ spec:
   defaultCompositionRef:
     name: customer
   group: dolittle.io
-  
   names:
     kind: XCustomer
     singular: xcustomer 
     plural: xcustomers
-
-  claimNames:
-    kind: Customer
-    singular: customer
-    plural: customers
-  
   versions:
   - name: v1alpha1
     served: true
@@ -31,19 +24,19 @@ spec:
               labels:
                 type: object
                 properties:
-                  tenant:
+                  customer:
                     type: string
                     description: The pascal-cased name of the customer
                 required:
-                - tenant
+                - customer
               annotations:
                 type: object
                 properties:
-                  dolittle.io/tenant-id:
+                  dolittle.io/customer-id:
                     type: string
                     description: The customer GUID
                 required:
-                - dolittle.io/tenant-id
+                - dolittle.io/customer-id
             required:
             - labels
             - annotations
