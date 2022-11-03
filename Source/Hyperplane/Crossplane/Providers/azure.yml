@@ -2,16 +2,18 @@
 apiVersion: pkg.crossplane.io/v1alpha1
 kind: ControllerConfig
 metadata:
-  name: jet-azure-config
+  name: azure-config
+  labels:
+    app: crossplane-provider-azure
 spec:
-  image: crossplane/provider-jet-azure-controller:v0.12.0-preview
+  image: xpkg.upbound.io/upbound/provider-azure:v0.17.0
   args: ["-d"]
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
-  name: jet-azure-provider
+  name: crossplane-provider-azure
 spec:
-  package: crossplane/provider-jet-azure:v0.12.0-preview
+  package: xpkg.upbound.io/upbound/provider-azure:v0.17.0
   controllerConfigRef:
-    name: jet-azure-config
+    name: azure-config
