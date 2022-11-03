@@ -1,0 +1,43 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cloud-provider-azure
+  labels:
+    crossplane.io/xrd: xcloudproviders.dolittle.io
+spec:
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: CloudProvider
+  resources:
+  - name: provider-config
+    base:
+      apiVersion: azure.jet.crossplane.io/v1alpha1
+      kind: ProviderConfig
+      spec:
+        credentials:
+          source: Secret
+    patches:
+    - fromFieldPath: spec.credentialSecret.name
+      toFieldPath: spec.credentials.secretRef.name
+    - fromFieldPath: spec.credentialSecret.namespace
+      toFieldPath: spec.credentials.secretRef.namespace
+    - fromFieldPath: spec.credentialSecret.key
+      toFieldPath: spec.credentials.secretRef.key
+  - name: namespace
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Namespace
+    patches:
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+      
