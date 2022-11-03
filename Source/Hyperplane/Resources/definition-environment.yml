@@ -6,12 +6,10 @@ spec:
   defaultCompositionRef:
     name: environment
   group: dolittle.io
-  
   names:
     kind: XEnvironment
     singular: xenvironment 
     plural: xenvironments
-
   claimNames:
     kind: Environment
     singular: environment
@@ -27,39 +25,26 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          metadata:
+          spec:
             type: object
             properties:
-              labels:
+              metadata:
                 type: object
                 properties:
                   application:
                     type: string
-                    description: The application name
+                    description: The PascalCased application name
+                  application-id:
+                    type: string
+                    description: The application GUID
                   environment:
                     type: string
                     description: The PascalCased environment name
-                  tenant:
-                    type: string
-                    description: The pascal-cased name of the customer
                 required:
                 - application
+                - application-id
                 - environment
-                - tenant
-              annotations:
-                type: object
-                properties:
-                  dolittle.io/application-id:
-                    type: string
-                    description: The application GUID
-                  dolittle.io/tenant-id:
-                    type: string
-                    description: The customer GUID
-                required:
-                - dolittle.io/application-id
-                - dolittle.io/tenant-id
             required:
-            - labels
-            - annotations
+            - metadata
         required:
-        - metadata
+        - spec

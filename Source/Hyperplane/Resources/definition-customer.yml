@@ -30,13 +30,9 @@ spec:
                   customer-id:
                     type: string
                     description: The GUID of the customer
-                  customer-test:
-                    type: string
-                    description: The pascal-cased name of the customer
                 required:
                 - customer
                 - customer-id
-                - customer-test
             required:
             - metadata
         required:

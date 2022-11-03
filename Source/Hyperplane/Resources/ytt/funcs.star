@@ -5,7 +5,8 @@ metadata = [
         "metadata.annotations[dolittle.io/microservice-id]",
         "metadata.labels.customer",
         "metadata.labels.application",
-        "metadata.labels.microservice"]
+        "metadata.labels.microservice",
+        "metadata.labels.environment"]
 labels = [
         "customer-id",
         "application-id",
@@ -51,7 +52,7 @@ def dolittle_patch_sets_metadata_from_spec(specPath="spec.metadata."):
     return [{"name": "dolittle-metadata", "patches": patches}]
 end
 
-def dolittle_references(apiVersion, kind, fromFieldPath, namespace="",toFieldPaths=[]):
+def dolittle_references(apiVersion, kind, fromFieldPath, metadata, namespace="",toFieldPaths=[]):
     toFieldPaths = ["", "spec.forProvider.manifest."] + toFieldPaths
     references = []
     for toFieldPath in toFieldPaths:

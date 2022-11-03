@@ -1,30 +1,19 @@
+#@ load("funcs.star", "dolittle_patch_sets_metadata_from_spec", "dolittle_references")
+#@ reference_metadata = ["metadata.annotations[dolittle.io/customer-id]", "metadata.labels.customer"]
+#@ references = dolittle_references("v1", "Namespace", "metadata.labels[crossplane.io/claim-namespace]", reference_metadata)
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: application
+  name: environment
   labels:
-    crossplane.io/xrd: xapplications.dolittle.io
+    crossplane.io/xrd: xenvironments.dolittle.io
 spec:
   compositeTypeRef:
     apiVersion: dolittle.io/v1alpha1
-    kind: XApplication
-  patchSets:
-  - name: metadata
-    patches:
-    # - fromFieldPath: metadata.labels
-    #   toFieldPath: metadata.labels
-    # - fromFieldPath: metadata.annotations
-    #   toFieldPath: metadata.annotations
-    # - fromFieldPath: metadata
-    #   toFieldPath: spec.forProvider.manifest.metadata
-    - fromFieldPath: metadata.annotations[dolittle.io/application-id]
-      toFieldPath: spec.forProvider.manifest.metadata.namespace
-      transforms:
-      - type: string
-        string:
-          fmt: "application-%s"
+    kind: XEnvironment
+  patchSets: #@ dolittle_patch_sets_metadata_from_spec("spec.metadata.") + references["patchSets"]
   resources:
-  - name: deployment
+  - name: namespace
     base:
       apiVersion: kubernetes.crossplane.io/v1alpha1
       kind: Object
@@ -35,24 +24,12 @@ spec:
           manifest:
             apiVersion: v1
             kind: Namespace
-        references:
-        - patchesFrom:
-            apiVersion: v1
-            # dependsOn: Make it depend on some sort of environment crossplane CRD and get the other labels from it
-            kind: Namespace
-            fieldPath: metadata.labels
-          toFieldPath: spec.forProvider.manifest.metadata.labels
+        references: #@ references["references"]
         
     patches:
     - type: PatchSet
-      patchSetName: metadata
-    - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
-      toFieldPath: spec.references[0].patchesFrom.namespace
-    - fromFieldPath: spec.deployment.name
-      toFieldPath: spec.forProvider.manifest.metadata.name
-    - fromFieldPath: spec.deployment.runtime.version
-      toFieldPath: spec.forProvider.manifest.spec.template.spec.containers[0].image
-      transforms:
-      - type: string
-        string:
-          fmt: "dolittle/runtime:%s"
+      patchSetName: dolittle-metadata
+    - type: PatchSet
+      patchSetName: dolittle-references
+    - fromFieldPath: metadata.labels[crossplane.io/claim-name]
+      toFieldPath: metadata.name
