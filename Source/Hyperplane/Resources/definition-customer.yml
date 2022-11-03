@@ -18,27 +18,26 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          metadata:
+          spec:
             type: object
             properties:
-              labels:
+              metadata:
                 type: object
                 properties:
                   customer:
                     type: string
                     description: The pascal-cased name of the customer
+                  customer-id:
+                    type: string
+                    description: The GUID of the customer
+                  customer-test:
+                    type: string
+                    description: The pascal-cased name of the customer
                 required:
                 - customer
-              annotations:
-                type: object
-                properties:
-                  dolittle.io/customer-id:
-                    type: string
-                    description: The customer GUID
-                required:
-                - dolittle.io/customer-id
+                - customer-id
+                - customer-test
             required:
-            - labels
-            - annotations
+            - metadata
         required:
-        - metadata
+        - spec

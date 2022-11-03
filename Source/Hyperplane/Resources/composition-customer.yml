@@ -1,4 +1,4 @@
-#@ load("funcs.star", "dolittle_patch_sets_metadata", "dolittle_references")
+#@ load("funcs.star", "dolittle_patch_sets_metadata_from_spec", "dolittle_references")
 
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
@@ -7,10 +7,11 @@ metadata:
   labels:
     crossplane.io/xrd: xcustomers.dolittle.io
 spec:
+  #! test: #@ dolittle_references("v1", "Namespace", "spec.metadata.customer-id")
   compositeTypeRef:
     apiVersion: dolittle.io/v1alpha1
     kind: XCustomer
-  patchSets: #@ dolittle_patch_sets_metadata()
+  patchSets: #@ dolittle_patch_sets_metadata_from_spec("spec.metadata.")
   resources:
   - name: namespace
     base:
@@ -26,8 +27,6 @@ spec:
     patches:
     - type: PatchSet
       patchSetName: dolittle-metadata
-    - type: PatchSet
-      patchSetName: dolittle-references
     - fromFieldPath: metadata.annotations[dolittle.io/customer-id]
       toFieldPath: metadata.name
       transforms:
