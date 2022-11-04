@@ -23,6 +23,11 @@ spec:
       toFieldPath: spec.credentials.secretRef.namespace
     - fromFieldPath: spec.credentialSecret.key
       toFieldPath: spec.credentials.secretRef.key
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
   - name: namespace
     base:
       apiVersion: kubernetes.crossplane.io/v1alpha1

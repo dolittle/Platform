@@ -1,42 +1,11 @@
-apiVersion: apiextensions.crossplane.io/v1
-kind: CompositeResourceDefinition
+apiVersion: dolittle.io/v1alpha1
+kind: Cluster
 metadata:
-  name: xcloudproviders.dolittle.io
+  name: dolittle-prod
 spec:
-  group: dolittle.io
-  names:
-    kind: XCloudProvider
-    singular: xcloudprovider 
-    plural: xcloudproviders
-  
-  versions:
-  - name: v1alpha1
-    served: true
-    referenceable: true
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          spec:
-            type: object
-            properties:
-              credentialSecret:
-                type: object
-                properties:
-                  namespace:
-                    type: string
-                    description: The namespace where the secret is
-                  name:
-                    type: string
-                    description: The name of the secret
-                  key:
-                    type: string
-                    description: The secret key
-                required:
-                - namespace
-                - name
-                - key
-            required:
-            - credentialSecret
-        required:
-        - spec
+  compositionRef:
+    name: cloud-provider-azure
+  credentialSecret:
+    namespace: system-cloudproviders
+    name: dolittle
+    key: creds
