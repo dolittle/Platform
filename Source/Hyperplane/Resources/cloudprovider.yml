@@ -9,3 +9,6 @@ spec:
     namespace: system-cloudproviders
     name: dolittle
     key: creds
+  resourceGroup:
+    name: Crossplane-Jakob-Testing
+    location: westeurope
