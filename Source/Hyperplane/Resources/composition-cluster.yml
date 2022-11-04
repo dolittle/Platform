@@ -9,13 +9,15 @@ spec:
     apiVersion: dolittle.io/v1alpha1
     kind: XCluster
   resources:
-  - name: namespace
+  - name: cluster
     base:
       apiVersion: containerservice.azure.upbound.io/v1beta1
       kind: KubernetesCluster
       spec:
         forProvider:
-          defaultNodePool:
+          location:
+          resourceGroupName:
     patches:
+    # - fromFieldPath: metadata.name
     - fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
       toFieldPath: spec.providerConfigRef.name
