@@ -1,4 +1,3 @@
-
 ## ytt
 Try using ytt https://carvel.dev/ytt/docs/v0.43.0/ for templating.
 
@@ -12,7 +11,7 @@ ytt -f <composition> -f ytt | k apply -f-
 - Do not modify resource definition while there are claims using it.
 - When setting the name of a managed resource (at least for the kubernetes provider Object type) one should set the metadata.name field
 - Installing jet-based providers installs A LOT of CRDs and that might give us performance issues on the kubernetes api-server. See discussion https://crossplane.slack.com/archives/C01718T2476/p1645793325962729
-- 
+- Renaming ProviderConfig in composition did not remove the old ProviderConfig 
 
 ### Install
 Apply namespace
