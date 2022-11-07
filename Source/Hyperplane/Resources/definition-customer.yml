@@ -1,0 +1,39 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcustomers.dolittle.io
+spec:
+  defaultCompositionRef:
+    name: customer
+  group: dolittle.io
+  names:
+    kind: XCustomer
+    singular: xcustomer 
+    plural: xcustomers
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              metadata:
+                type: object
+                properties:
+                  customer:
+                    type: string
+                    description: The pascal-cased name of the customer
+                  customer-id:
+                    type: string
+                    description: The GUID of the customer
+                required:
+                - customer
+                - customer-id
+            required:
+            - metadata
+        required:
+        - spec

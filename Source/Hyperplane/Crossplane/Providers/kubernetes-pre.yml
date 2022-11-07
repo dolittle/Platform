@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: provider-kubernetes
+  namespace: system-crossplane
+  labels:
+    system: Hyperplane
+    service: Crossplane
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: provider-kubernetes
+  labels:
+    system: Hyperplane
+    service: Crossplane
+subjects:
+- kind: ServiceAccount
+  name: provider-kubernetes
+  namespace: system-crossplane
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: pkg.crossplane.io/v1alpha1
+kind: ControllerConfig
+metadata:
+  name: provider-kubernetes
+  labels:
+    system: Hyperplane
+    service: Crossplane
+spec:
+  serviceAccountName: provider-kubernetes

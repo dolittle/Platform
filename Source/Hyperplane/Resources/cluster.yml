@@ -1,0 +1,11 @@
+apiVersion: dolittle.io/v1alpha1
+kind: Cluster
+metadata:
+  name: dolittle-prod
+spec:
+  compositionRef:
+    name: cloud-provider-azure
+  credentialSecret:
+    namespace: system-cloudproviders
+    name: dolittle
+    key: creds

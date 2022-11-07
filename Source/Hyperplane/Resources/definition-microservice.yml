@@ -1,0 +1,96 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmicroservices.dolittle.io
+spec:
+  defaultCompositionRef:
+    name: microservice-simple
+  group: dolittle.io
+  
+  names:
+    kind: XMicroservice
+    singular: xmicroservice 
+    plural: xmicroservices
+
+  claimNames:
+    kind: Microservice
+    singular: microservice
+    plural: microservices
+    shortNames:
+    - ms
+  
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          metadata:
+            type: object
+            properties:
+              labels:
+                type: object
+                properties:
+                  application:
+                    type: string
+                    description: The application name
+                  environment:
+                    type: string
+                    description: The PascalCased environment the microservice is running in
+                  microservice:
+                    type: string
+                    description: The PascalCased name of the microservice
+                  tenant:
+                    type: string
+                    description: The pascal-cased name of the customer
+                required:
+                - application
+                - environment
+                - microservice
+                - tenant
+              annotations:
+                type: object
+                properties:
+                  dolittle.io/application-id:
+                    type: string
+                    description: The application GUID
+                  dolittle.io/microservice-id:
+                    type: string
+                    description: The microservice GUID
+                  dolittle.io/tenant-id:
+                    type: string
+                    description: The customer GUID
+                required:
+                - dolittle.io/application-id
+                - dolittle.io/microservice-id
+                - dolittle.io/tenant-id
+            required:
+            - labels
+            - annotations
+          spec:
+            type: object
+            properties:
+              deployment:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The deployment name. Usually <environment>-<microservice>
+                  runtime:
+                    type: object
+                    properties:
+                      version:
+                        type: string
+                        description: The semantic version of the Dolittle Runtime to use 
+                    required:
+                    - version
+                required:
+                - name              
+                - runtime              
+            required:
+            - deployment
+        required:
+        - metadata
+        - spec

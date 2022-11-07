@@ -1,0 +1,119 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cloud-provider-azure
+  labels:
+    crossplane.io/xrd: xcloudproviders.dolittle.io
+spec:
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: XCloudProvider
+  resources:
+  - name: namespace
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Namespace
+    patches:
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s-namespace"
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.manifest.metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+  - name: provider-config
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: azure.upbound.io/v1beta1
+            kind: ProviderConfig
+            spec:
+              credentials:
+                source: Secret
+    patches:
+    - fromFieldPath: spec.credentialSecret
+      toFieldPath: spec.forProvider.manifest.spec.credentials.secretRef
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s-providerconfig"
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.manifest.metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+  - name: resource-group
+    base:
+      apiVersion: azure.upbound.io/v1beta1
+      kind: ResourceGroup
+      spec:
+        deletionPolicy: Orphan
+    patches:
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+    - fromFieldPath: spec.resourceGroup.name
+      toFieldPath: metadata.annotations[crossplane.io/external-name]
+    - fromFieldPath: spec.resourceGroup.location
+      toFieldPath: spec.forProvider.location
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.providerConfigRef.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+  - name: provider-data
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: provider-data
+    patches:
+    - fromFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s-providerdata"
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.manifest.metadata.namespace
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+    - fromFieldPath: metadata.name
+      toFieldPath: spec.forProvider.manifest.data.providerConfigRefName
+      transforms:
+      - type: string
+        string:
+          fmt: "cloud-provider-%s"
+    - fromFieldPath: spec.resourceGroup.name
+      toFieldPath: spec.forProvider.manifest.data.resourceGroupName
+    - fromFieldPath: spec.resourceGroup.location
+      toFieldPath: spec.forProvider.manifest.data.location

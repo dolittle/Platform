@@ -1,0 +1,35 @@
+#@ load("funcs.star", "dolittle_patch_sets_metadata_from_spec", "dolittle_references")
+#@ reference_metadata = ["metadata.annotations[dolittle.io/customer-id]", "metadata.labels.customer"]
+#@ references = dolittle_references("v1", "Namespace", "metadata.labels[crossplane.io/claim-namespace]", reference_metadata)
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: environment
+  labels:
+    crossplane.io/xrd: xenvironments.dolittle.io
+spec:
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: XEnvironment
+  patchSets: #@ dolittle_patch_sets_metadata_from_spec("spec.metadata.") + references["patchSets"]
+  resources:
+  - name: namespace
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Namespace
+        references: #@ references["references"]
+        
+    patches:
+    - type: PatchSet
+      patchSetName: dolittle-metadata
+    - type: PatchSet
+      patchSetName: dolittle-references
+    - fromFieldPath: metadata.labels[crossplane.io/claim-name]
+      toFieldPath: metadata.name

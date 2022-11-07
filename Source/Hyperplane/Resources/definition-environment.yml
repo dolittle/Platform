@@ -1,0 +1,50 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xenvironments.dolittle.io
+spec:
+  defaultCompositionRef:
+    name: environment
+  group: dolittle.io
+  names:
+    kind: XEnvironment
+    singular: xenvironment 
+    plural: xenvironments
+  claimNames:
+    kind: Environment
+    singular: environment
+    plural: environments
+    shortNames:
+    - env
+  
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              metadata:
+                type: object
+                properties:
+                  application:
+                    type: string
+                    description: The PascalCased application name
+                  application-id:
+                    type: string
+                    description: The application GUID
+                  environment:
+                    type: string
+                    description: The PascalCased environment name
+                required:
+                - application
+                - application-id
+                - environment
+            required:
+            - metadata
+        required:
+        - spec

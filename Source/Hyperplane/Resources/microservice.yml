@@ -1,0 +1,20 @@
+apiVersion: dolittle.io/v1alpha1
+kind: Microservice
+metadata:
+  name: my-ms
+  namespace: application-fd1e1c03-47c2-45b0-9198-f98e60c7878d
+  annotations:
+    dolittle.io/application-id: fd1e1c03-47c2-45b0-9198-f98e60c7878d
+    dolittle.io/microservice-id: 125df0c8-4554-47ab-b954-c8aead690e98
+    dolittle.io/tenant-id: dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
+  labels:
+    application: MyApp
+    environment: Prod
+    microservice: MyMs
+    tenant: Sindre
+spec:
+  deployment:
+    name: prod-my-ms
+    runtime:
+      version: 8.7.0
+

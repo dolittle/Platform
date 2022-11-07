@@ -1,0 +1,11 @@
+apiVersion: dolittle.io/v1alpha1
+kind: Environment
+metadata:
+  name: dd1d3a3c-fd99-4ad1-8863-d54e5500bb77-prod
+  namespace: customer-dd1d3a3c-fd99-4ad1-8863-d54e5500bb77
+spec:
+  compositeDeletePolicy: Foreground
+  metadata:
+    application: MyApp
+    application-id: b163ff98-3bac-445b-abe2-535ff029b7cd
+    environment: Prod

@@ -1,0 +1,14 @@
+apiVersion: dolittle.io/v1alpha1
+kind: XCloudProvider
+metadata:
+  name: dolittle
+spec:
+  compositionRef:
+    name: cloud-provider-azure
+  credentialSecret:
+    namespace: system-cloudproviders
+    name: dolittle
+    key: creds
+  resourceGroup:
+    name: Crossplane-Jakob-Testing
+    location: westeurope

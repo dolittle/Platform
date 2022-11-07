@@ -1,0 +1,34 @@
+#@ load("funcs.star", "dolittle_patch_sets_metadata_from_spec")
+
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: customer
+  labels:
+    crossplane.io/xrd: xcustomers.dolittle.io
+spec:
+  compositeTypeRef:
+    apiVersion: dolittle.io/v1alpha1
+    kind: XCustomer
+  patchSets: #@ dolittle_patch_sets_metadata_from_spec("spec.metadata.")
+  resources:
+  - name: namespace
+    base:
+      apiVersion: kubernetes.crossplane.io/v1alpha1
+      kind: Object
+      spec:
+        providerConfigRef:
+          name: provider-kubernetes
+        forProvider:
+          manifest:
+            apiVersion: v1
+            kind: Namespace
+    patches:
+    - type: PatchSet
+      patchSetName: dolittle-metadata
+    - fromFieldPath: spec.metadata.customer-id
+      toFieldPath: metadata.name
+      transforms:
+      - type: string
+        string:
+          fmt: "customer-%s"
