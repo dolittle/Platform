@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
-        <DolittleSDKVersion>8.3.1</DolittleSDKVersion>
+        <DolittleSDKVersion>18.1.1</DolittleSDKVersion>
         <SwaggerVersion>5.6.3</SwaggerVersion>
+        <KubeOpsVersion>6.6.1</KubeOpsVersion>
     </PropertyGroup>
 </Project>
