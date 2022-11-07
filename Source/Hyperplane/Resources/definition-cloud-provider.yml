@@ -36,7 +36,20 @@ spec:
                 - namespace
                 - name
                 - key
+              resourceGroup:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The ResourceGroup to create resources in
+                  location:
+                    type: string
+                    description: The location of the ResourceGroup
+                required:
+                - name
+                - location
             required:
             - credentialSecret
+            - resourceGroup
         required:
         - spec
