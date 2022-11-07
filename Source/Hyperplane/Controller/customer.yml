@@ -1,0 +1,8 @@
+apiVersion: dolittle.io/v1alpha1
+kind: Customer
+metadata:
+  name: sindre
+  namespace: default
+spec:
+  name: Sindre2
+  id: fa6923ee-0ff6-4814-8513-59f6febc2382

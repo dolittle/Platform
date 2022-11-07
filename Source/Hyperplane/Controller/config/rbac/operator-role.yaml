@@ -4,6 +4,14 @@ metadata:
   name: operator-role
 rules:
 - apiGroups:
+  - dolittle.io
+  resources:
+  - customers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - ''
   resources:
   - events
