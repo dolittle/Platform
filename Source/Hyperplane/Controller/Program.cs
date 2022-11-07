@@ -5,7 +5,9 @@ using KubeOps.Operator;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddKubernetesOperator();
+builder.Services.AddKubernetesOperator()
+    //.AddWebhookLocaltunnel() // ONLY USE THIS WHEN NO SECRETS ARE INVOLVED (AND DEFINITELY NOT IN PRODUCTION - DATA GOES TO A 3RD PARTY SERVER!!!
+;
 
 var app = builder.Build();
 
