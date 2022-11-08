@@ -1,16 +1,15 @@
 // Copyright (c) Dolittle. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Controller.Entities;
 using KubeOps.Operator.Webhooks;
 
-namespace Controller.Validation;
+namespace Controller.Customers;
 
-public class Customers : IValidationWebhook<Customer>
+public class Validation : IValidationWebhook<Customer>
 {
-    readonly ILogger<Customers> _logger;
+    readonly ILogger<Validation> _logger;
 
-    public Customers(ILogger<Customers> logger)
+    public Validation(ILogger<Validation> logger)
     {
         _logger = logger;
     }
