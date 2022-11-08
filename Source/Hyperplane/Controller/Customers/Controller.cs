@@ -45,7 +45,6 @@ public class Controller : IResourceController<Customer>
                 return ResourceControllerResult.RequeueEvent(TimeSpan.FromSeconds(10));
             }
 
-            // TODO: Check that we own the NS
             SetNamespaceThings(ns, customer);
             await _client.Update(ns).ConfigureAwait(false);
             return null;
@@ -60,8 +59,6 @@ public class Controller : IResourceController<Customer>
         };
         SetNamespaceThings(ns, customer);
 
-        // TODO: Set owner reference (should manage deletion for us?)
-        // Oh - maybe we cant since this is cross-namespace. But maybe we can use finalizers...
         _logger.LogInformation("Creating namespace for Customer {Id}", customer.Spec.Id);
         await _client.Create(ns).ConfigureAwait(false);
         await _events.PublishAsync(customer, "NamespaceCreated", "Created Namespace for Customer").ConfigureAwait(false);
