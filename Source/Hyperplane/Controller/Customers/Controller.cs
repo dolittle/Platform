@@ -30,7 +30,6 @@ public class Controller : IResourceController<Customer>
     public async Task<ResourceControllerResult?> ReconcileAsync(Customer customer)
     {
         var nsName = $"customer-{customer.Spec.Id}";
-
         var ns = await _client.Get<V1Namespace>(nsName).ConfigureAwait(false);
         if (ns is not null)
         {
@@ -77,14 +76,7 @@ public class Controller : IResourceController<Customer>
         ns.EnsureMetadata().EnsureAnnotations()["dolittle.io/customer-id"] = customer.Spec.Id;
         ns.EnsureMetadata().EnsureLabels()["customer"] = customer.Spec.Name;
 
-
         _logger.LogInformation("Adding finalizers");
         await _finalizers.RegisterAllFinalizersAsync(customer).ConfigureAwait(false);
-    }
-
-    public async Task<ResourceControllerResult?> ReconcileAsync(V1Namespace v1Namespace)
-    {
-        _logger.LogInformation("Reconciling on Namespace {}", v1Namespace.Name());
-        return null;
     }
 }
