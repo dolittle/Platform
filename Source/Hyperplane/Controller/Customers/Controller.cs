@@ -35,8 +35,8 @@ public class Controller : IResourceController<Customer>
         {
             _logger.LogInformation("Namespace for Customer {Id} already exists", customer.Spec.Id);
 
-            ns.EnsureMetadata().EnsureAnnotations().TryGetValue("customers.dolittle.io/owner-namespace", out var ownerNamespace);
-            ns.EnsureMetadata().EnsureAnnotations().TryGetValue("customers.dolittle.io/owner-name", out var ownerName);
+            var ownerNamespace = ns.GetAnnotation("customers.dolittle.io/owner-namespace");
+            var ownerName= ns.GetAnnotation("customers.dolittle.io/owner-name");
 
             if (ownerNamespace != customer.Namespace() || ownerName != customer.Name())
             {
@@ -70,11 +70,11 @@ public class Controller : IResourceController<Customer>
 
     async Task SetNamespaceThings(V1Namespace ns, Customer customer)
     {
-        ns.EnsureMetadata().EnsureAnnotations()["customers.dolittle.io/owner-namespace"] = customer.Metadata.Namespace();
-        ns.EnsureMetadata().EnsureAnnotations()["customers.dolittle.io/owner-name"] = customer.Metadata.Name;
+        ns.SetAnnotation("customers.dolittle.io/owner-namespace", customer.Namespace());
+        ns.SetAnnotation("customers.dolittle.io/owner-name", customer.Name());
 
-        ns.EnsureMetadata().EnsureAnnotations()["dolittle.io/customer-id"] = customer.Spec.Id;
-        ns.EnsureMetadata().EnsureLabels()["customer"] = customer.Spec.Name;
+        ns.SetAnnotation("dolittle.io/customer-id", customer.Spec.Id);
+        ns.SetLabel("customer", customer.Spec.Name);
 
         _logger.LogInformation("Adding finalizers");
         await _finalizers.RegisterAllFinalizersAsync(customer).ConfigureAwait(false);
