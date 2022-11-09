@@ -1,39 +1,41 @@
 ---
 apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: azureserviceoperator-serving-cert
-  namespace: azureserviceoperator-system
-spec:
-  dnsNames:
-    - azureserviceoperator-webhook-service.azureserviceoperator-system.svc
-    - azureserviceoperator-webhook-service.azureserviceoperator-system.svc.cluster.local
-  issuerRef:
-    kind: Issuer
-    name: azureserviceoperator-selfsigned-issuer
-  secretName: webhook-server-cert
----
-apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: azureserviceoperator-selfsigned-issuer
-  namespace: azureserviceoperator-system
+  namespace: system-azure-operator
+  name: selfsigned
 spec:
   selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: system-azure-operator
+  name: webhooks
+spec:
+  dnsNames:
+    - webhooks.system-azure-operator.svc
+    - webhooks.system-azure-operator.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: selfsigned
+  secretName: webhook-server-cert
+  
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: azureserviceoperator-system/azureserviceoperator-serving-cert
-  name: azureserviceoperator-mutating-webhook-configuration
+    cert-manager.io/inject-ca-from: system-azure-operator/webhooks
+  name: system-azure-operator
 webhooks:
   - admissionReviewVersions:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-appconfiguration-azure-com-v1beta20220501-configurationstore
     failurePolicy: Fail
     matchPolicy: Exact
@@ -53,8 +55,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-authorization-azure-com-v1alpha1api20200801preview-roleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -74,8 +76,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-authorization-azure-com-v1beta20200801preview-roleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -95,8 +97,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-batch-azure-com-v1alpha1api20210101-batchaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -116,8 +118,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-batch-azure-com-v1beta20210101-batchaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -137,8 +139,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20201201-redisfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -158,8 +160,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20201201-redislinkedserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -179,8 +181,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20201201-redispatchschedule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -200,8 +202,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20201201-redis
     failurePolicy: Fail
     matchPolicy: Exact
@@ -221,8 +223,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20210301-redisenterprisedatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -242,8 +244,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1alpha1api20210301-redisenterprise
     failurePolicy: Fail
     matchPolicy: Exact
@@ -263,8 +265,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20201201-redisfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -284,8 +286,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20201201-redislinkedserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -305,8 +307,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20201201-redispatchschedule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -326,8 +328,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20201201-redis
     failurePolicy: Fail
     matchPolicy: Exact
@@ -347,8 +349,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20210301-redisenterprisedatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -368,8 +370,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cache-azure-com-v1beta20210301-redisenterprise
     failurePolicy: Fail
     matchPolicy: Exact
@@ -389,8 +391,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cdn-azure-com-v1beta20210601-profile
     failurePolicy: Fail
     matchPolicy: Exact
@@ -410,8 +412,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-cdn-azure-com-v1beta20210601-profilesendpoint
     failurePolicy: Fail
     matchPolicy: Exact
@@ -431,8 +433,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1alpha1api20200930-disk
     failurePolicy: Fail
     matchPolicy: Exact
@@ -452,8 +454,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1alpha1api20200930-snapshot
     failurePolicy: Fail
     matchPolicy: Exact
@@ -473,8 +475,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1alpha1api20201201-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -494,8 +496,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1alpha1api20201201-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -515,8 +517,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1alpha1api20210701-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -536,8 +538,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20200930-disk
     failurePolicy: Fail
     matchPolicy: Exact
@@ -557,8 +559,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20200930-snapshot
     failurePolicy: Fail
     matchPolicy: Exact
@@ -578,8 +580,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20201201-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -599,8 +601,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20201201-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -620,8 +622,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20210701-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -641,8 +643,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20220301-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -662,8 +664,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20220301-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -683,8 +685,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-compute-azure-com-v1beta20220301-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -704,8 +706,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerinstance-azure-com-v1beta20211001-containergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -725,8 +727,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerregistry-azure-com-v1alpha1api20210901-registry
     failurePolicy: Fail
     matchPolicy: Exact
@@ -746,8 +748,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerregistry-azure-com-v1beta20210901-registry
     failurePolicy: Fail
     matchPolicy: Exact
@@ -767,8 +769,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerservice-azure-com-v1alpha1api20210501-managedcluster
     failurePolicy: Fail
     matchPolicy: Exact
@@ -788,8 +790,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerservice-azure-com-v1alpha1api20210501-managedclustersagentpool
     failurePolicy: Fail
     matchPolicy: Exact
@@ -809,8 +811,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerservice-azure-com-v1beta20210501-managedcluster
     failurePolicy: Fail
     matchPolicy: Exact
@@ -830,8 +832,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-containerservice-azure-com-v1beta20210501-managedclustersagentpool
     failurePolicy: Fail
     matchPolicy: Exact
@@ -851,8 +853,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformariadb-azure-com-v1beta20180601-configuration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -872,8 +874,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformariadb-azure-com-v1beta20180601-database
     failurePolicy: Fail
     matchPolicy: Exact
@@ -893,8 +895,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformariadb-azure-com-v1beta20180601-server
     failurePolicy: Fail
     matchPolicy: Exact
@@ -914,8 +916,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1alpha1api20210501-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -935,8 +937,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1alpha1api20210501-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -956,8 +958,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1alpha1api20210501-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -977,8 +979,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1beta20210501-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -998,8 +1000,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1beta20210501-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1019,8 +1021,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1beta20210501-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1040,8 +1042,8 @@ webhooks:
       - v1beta1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbformysql-azure-com-v1beta1-user
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1061,8 +1063,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1082,8 +1084,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversconfiguration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1103,8 +1105,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1124,8 +1126,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1145,8 +1147,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1beta20210601-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1166,8 +1168,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversconfiguration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1187,8 +1189,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1208,8 +1210,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1229,8 +1231,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-databaseaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1250,8 +1252,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasecollectionthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1271,8 +1273,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasecollection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1292,8 +1294,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1313,8 +1315,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1334,8 +1336,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainerstoredprocedure
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1355,8 +1357,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainerthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1376,8 +1378,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainertrigger
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1397,8 +1399,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1418,8 +1420,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontaineruserdefinedfunction
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1439,8 +1441,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1460,8 +1462,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1alpha1api20210515-sqldatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1481,8 +1483,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-databaseaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1502,8 +1504,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-mongodbdatabasecollectionthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1523,8 +1525,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-mongodbdatabasecollection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1544,8 +1546,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-mongodbdatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1565,8 +1567,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-mongodbdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1586,8 +1588,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasecontainerstoredprocedure
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1607,8 +1609,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasecontainerthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1628,8 +1630,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasecontainertrigger
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1649,8 +1651,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasecontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1670,8 +1672,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasecontaineruserdefinedfunction
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1691,8 +1693,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1712,8 +1714,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqldatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1733,8 +1735,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-documentdb-azure-com-v1beta20210515-sqlroleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1754,8 +1756,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1alpha1api20200601-domain
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1775,8 +1777,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1alpha1api20200601-domainstopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1796,8 +1798,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1alpha1api20200601-eventsubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1817,8 +1819,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1alpha1api20200601-topic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1838,8 +1840,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1beta20200601-domain
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1859,8 +1861,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1beta20200601-domainstopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1880,8 +1882,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1beta20200601-eventsubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1901,8 +1903,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventgrid-azure-com-v1beta20200601-topic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1922,8 +1924,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1alpha1api20211101-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1943,8 +1945,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1alpha1api20211101-namespacesauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1964,8 +1966,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhub
     failurePolicy: Fail
     matchPolicy: Exact
@@ -1985,8 +1987,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhubsauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2006,8 +2008,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhubsconsumergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2027,8 +2029,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1beta20211101-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2048,8 +2050,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1beta20211101-namespacesauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2069,8 +2071,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1beta20211101-namespaceseventhub
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2090,8 +2092,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1beta20211101-namespaceseventhubsauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2111,8 +2113,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-eventhub-azure-com-v1beta20211101-namespaceseventhubsconsumergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2132,8 +2134,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-insights-azure-com-v1alpha1api20180501preview-webtest
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2153,8 +2155,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-insights-azure-com-v1alpha1api20200202-component
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2174,8 +2176,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-insights-azure-com-v1beta20180501preview-webtest
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2195,8 +2197,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-insights-azure-com-v1beta20200202-component
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2216,8 +2218,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-keyvault-azure-com-v1beta20210401preview-vault
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2237,8 +2239,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-machinelearningservices-azure-com-v1beta20210701-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2258,8 +2260,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-machinelearningservices-azure-com-v1beta20210701-workspacescompute
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2279,8 +2281,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-machinelearningservices-azure-com-v1beta20210701-workspacesconnection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2300,8 +2302,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-managedidentity-azure-com-v1alpha1api20181130-userassignedidentity
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2321,8 +2323,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-managedidentity-azure-com-v1beta20181130-userassignedidentity
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2342,8 +2344,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-managedidentity-azure-com-v1beta20220131preview-federatedidentitycredential
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2363,8 +2365,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-loadbalancer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2384,8 +2386,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-networkinterface
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2405,8 +2407,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-networksecuritygroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2426,8 +2428,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-networksecuritygroupssecurityrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2447,8 +2449,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-publicipaddress
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2468,8 +2470,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-virtualnetworkgateway
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2489,8 +2491,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-virtualnetwork
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2510,8 +2512,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-virtualnetworkssubnet
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2531,8 +2533,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1alpha1api20201101-virtualnetworksvirtualnetworkpeering
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2552,8 +2554,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20180901-privatednszone
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2573,8 +2575,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-loadbalancer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2594,8 +2596,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-networkinterface
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2615,8 +2617,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-networksecuritygroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2636,8 +2638,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-networksecuritygroupssecurityrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2657,8 +2659,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-publicipaddress
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2678,8 +2680,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-routetable
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2699,8 +2701,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-routetablesroute
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2720,8 +2722,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-virtualnetworkgateway
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2741,8 +2743,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-virtualnetwork
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2762,8 +2764,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-virtualnetworkssubnet
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2783,8 +2785,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-network-azure-com-v1beta20201101-virtualnetworksvirtualnetworkpeering
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2804,8 +2806,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-operationalinsights-azure-com-v1alpha1api20210601-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2825,8 +2827,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-operationalinsights-azure-com-v1beta20210601-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2846,8 +2848,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-resources-azure-com-v1beta20200601-resourcegroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2867,8 +2869,8 @@ webhooks:
       - v1beta1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-resources-azure-com-v1alpha1api20200601-resourcegroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2888,8 +2890,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1alpha1api20210101preview-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2909,8 +2911,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1alpha1api20210101preview-namespacesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2930,8 +2932,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1alpha1api20210101preview-namespacestopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2951,8 +2953,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1beta20210101preview-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2972,8 +2974,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1beta20210101preview-namespacesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -2993,8 +2995,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1beta20210101preview-namespacestopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3014,8 +3016,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1beta20210101preview-namespacestopicssubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3035,8 +3037,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-servicebus-azure-com-v1beta20210101preview-namespacestopicssubscriptionsrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3056,8 +3058,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-signalrservice-azure-com-v1alpha1api20211001-signalr
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3077,8 +3079,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-signalrservice-azure-com-v1beta20211001-signalr
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3098,8 +3100,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3119,8 +3121,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccountsblobservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3140,8 +3142,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccountsblobservicescontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3161,8 +3163,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccountsmanagementpolicy
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3182,8 +3184,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccountsqueueservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3203,8 +3205,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1alpha1api20210401-storageaccountsqueueservicesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3224,8 +3226,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3245,8 +3247,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccountsblobservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3266,8 +3268,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccountsblobservicescontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3287,8 +3289,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccountsmanagementpolicy
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3308,8 +3310,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccountsqueueservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3329,8 +3331,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-storage-azure-com-v1beta20210401-storageaccountsqueueservicesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3350,8 +3352,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-subscription-azure-com-v1beta20211001-alias
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3371,8 +3373,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-web-azure-com-v1beta20220301-serverfarm
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3392,8 +3394,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /mutate-web-azure-com-v1beta20220301-site
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3414,15 +3416,15 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: azureserviceoperator-system/azureserviceoperator-serving-cert
-  name: azureserviceoperator-validating-webhook-configuration
+    cert-manager.io/inject-ca-from: system-azure-operator/webhooks
+  name: system-azure-operator
 webhooks:
   - admissionReviewVersions:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-appconfiguration-azure-com-v1beta20220501-configurationstore
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3442,8 +3444,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-authorization-azure-com-v1alpha1api20200801preview-roleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3463,8 +3465,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-authorization-azure-com-v1beta20200801preview-roleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3484,8 +3486,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-batch-azure-com-v1alpha1api20210101-batchaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3505,8 +3507,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-batch-azure-com-v1beta20210101-batchaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3526,8 +3528,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20201201-redisfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3547,8 +3549,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20201201-redislinkedserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3568,8 +3570,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20201201-redispatchschedule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3589,8 +3591,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20201201-redis
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3610,8 +3612,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20210301-redisenterprisedatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3631,8 +3633,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1alpha1api20210301-redisenterprise
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3652,8 +3654,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20201201-redisfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3673,8 +3675,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20201201-redislinkedserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3694,8 +3696,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20201201-redispatchschedule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3715,8 +3717,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20201201-redis
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3736,8 +3738,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20210301-redisenterprisedatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3757,8 +3759,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cache-azure-com-v1beta20210301-redisenterprise
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3778,8 +3780,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cdn-azure-com-v1beta20210601-profile
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3799,8 +3801,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-cdn-azure-com-v1beta20210601-profilesendpoint
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3820,8 +3822,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1alpha1api20200930-disk
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3841,8 +3843,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1alpha1api20200930-snapshot
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3862,8 +3864,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1alpha1api20201201-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3883,8 +3885,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1alpha1api20201201-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3904,8 +3906,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1alpha1api20210701-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3925,8 +3927,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20200930-disk
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3946,8 +3948,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20200930-snapshot
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3967,8 +3969,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20201201-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -3988,8 +3990,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20201201-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4009,8 +4011,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20210701-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4030,8 +4032,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20220301-image
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4051,8 +4053,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20220301-virtualmachinescaleset
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4072,8 +4074,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-compute-azure-com-v1beta20220301-virtualmachine
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4093,8 +4095,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerinstance-azure-com-v1beta20211001-containergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4114,8 +4116,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerregistry-azure-com-v1alpha1api20210901-registry
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4135,8 +4137,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerregistry-azure-com-v1beta20210901-registry
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4156,8 +4158,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerservice-azure-com-v1alpha1api20210501-managedcluster
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4177,8 +4179,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerservice-azure-com-v1alpha1api20210501-managedclustersagentpool
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4198,8 +4200,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerservice-azure-com-v1beta20210501-managedcluster
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4219,8 +4221,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-containerservice-azure-com-v1beta20210501-managedclustersagentpool
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4240,8 +4242,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformariadb-azure-com-v1beta20180601-configuration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4261,8 +4263,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformariadb-azure-com-v1beta20180601-database
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4282,8 +4284,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformariadb-azure-com-v1beta20180601-server
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4303,8 +4305,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1alpha1api20210501-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4324,8 +4326,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1alpha1api20210501-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4345,8 +4347,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1alpha1api20210501-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4366,8 +4368,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1beta20210501-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4387,8 +4389,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1beta20210501-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4408,8 +4410,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1beta20210501-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4429,8 +4431,8 @@ webhooks:
       - v1beta1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbformysql-azure-com-v1beta1-user
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4450,8 +4452,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4471,8 +4473,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversconfiguration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4492,8 +4494,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4513,8 +4515,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1alpha1api20210601-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4534,8 +4536,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1beta20210601-flexibleserver
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4555,8 +4557,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversconfiguration
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4576,8 +4578,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4597,8 +4599,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-dbforpostgresql-azure-com-v1beta20210601-flexibleserversfirewallrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4618,8 +4620,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-databaseaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4639,8 +4641,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasecollectionthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4660,8 +4662,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasecollection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4681,8 +4683,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4702,8 +4704,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-mongodbdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4723,8 +4725,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainerstoredprocedure
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4744,8 +4746,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainerthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4765,8 +4767,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainertrigger
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4786,8 +4788,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4807,8 +4809,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasecontaineruserdefinedfunction
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4828,8 +4830,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4849,8 +4851,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1alpha1api20210515-sqldatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4870,8 +4872,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-databaseaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4891,8 +4893,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-mongodbdatabasecollectionthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4912,8 +4914,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-mongodbdatabasecollection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4933,8 +4935,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-mongodbdatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4954,8 +4956,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-mongodbdatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4975,8 +4977,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasecontainerstoredprocedure
     failurePolicy: Fail
     matchPolicy: Exact
@@ -4996,8 +4998,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasecontainerthroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5017,8 +5019,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasecontainertrigger
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5038,8 +5040,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasecontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5059,8 +5061,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasecontaineruserdefinedfunction
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5080,8 +5082,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabasethroughputsetting
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5101,8 +5103,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqldatabase
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5122,8 +5124,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-documentdb-azure-com-v1beta20210515-sqlroleassignment
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5143,8 +5145,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1alpha1api20200601-domain
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5164,8 +5166,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1alpha1api20200601-domainstopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5185,8 +5187,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1alpha1api20200601-eventsubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5206,8 +5208,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1alpha1api20200601-topic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5227,8 +5229,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1beta20200601-domain
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5248,8 +5250,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1beta20200601-domainstopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5269,8 +5271,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1beta20200601-eventsubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5290,8 +5292,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventgrid-azure-com-v1beta20200601-topic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5311,8 +5313,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1alpha1api20211101-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5332,8 +5334,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1alpha1api20211101-namespacesauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5353,8 +5355,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhub
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5374,8 +5376,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhubsauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5395,8 +5397,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1alpha1api20211101-namespaceseventhubsconsumergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5416,8 +5418,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1beta20211101-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5437,8 +5439,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1beta20211101-namespacesauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5458,8 +5460,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1beta20211101-namespaceseventhub
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5479,8 +5481,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1beta20211101-namespaceseventhubsauthorizationrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5500,8 +5502,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-eventhub-azure-com-v1beta20211101-namespaceseventhubsconsumergroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5521,8 +5523,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-insights-azure-com-v1alpha1api20180501preview-webtest
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5542,8 +5544,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-insights-azure-com-v1alpha1api20200202-component
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5563,8 +5565,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-insights-azure-com-v1beta20180501preview-webtest
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5584,8 +5586,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-insights-azure-com-v1beta20200202-component
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5605,8 +5607,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-keyvault-azure-com-v1beta20210401preview-vault
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5626,8 +5628,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-machinelearningservices-azure-com-v1beta20210701-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5647,8 +5649,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-machinelearningservices-azure-com-v1beta20210701-workspacescompute
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5668,8 +5670,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-machinelearningservices-azure-com-v1beta20210701-workspacesconnection
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5689,8 +5691,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-managedidentity-azure-com-v1alpha1api20181130-userassignedidentity
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5710,8 +5712,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-managedidentity-azure-com-v1beta20181130-userassignedidentity
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5731,8 +5733,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-managedidentity-azure-com-v1beta20220131preview-federatedidentitycredential
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5752,8 +5754,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-loadbalancer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5773,8 +5775,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-networkinterface
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5794,8 +5796,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-networksecuritygroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5815,8 +5817,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-networksecuritygroupssecurityrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5836,8 +5838,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-publicipaddress
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5857,8 +5859,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-virtualnetworkgateway
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5878,8 +5880,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-virtualnetwork
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5899,8 +5901,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-virtualnetworkssubnet
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5920,8 +5922,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1alpha1api20201101-virtualnetworksvirtualnetworkpeering
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5941,8 +5943,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20180901-privatednszone
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5962,8 +5964,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-loadbalancer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -5983,8 +5985,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-networkinterface
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6004,8 +6006,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-networksecuritygroup
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6025,8 +6027,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-networksecuritygroupssecurityrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6046,8 +6048,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-publicipaddress
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6067,8 +6069,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-routetable
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6088,8 +6090,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-routetablesroute
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6109,8 +6111,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-virtualnetworkgateway
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6130,8 +6132,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-virtualnetwork
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6151,8 +6153,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-virtualnetworkssubnet
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6172,8 +6174,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-network-azure-com-v1beta20201101-virtualnetworksvirtualnetworkpeering
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6193,8 +6195,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-operationalinsights-azure-com-v1alpha1api20210601-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6214,8 +6216,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-operationalinsights-azure-com-v1beta20210601-workspace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6235,8 +6237,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1alpha1api20210101preview-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6256,8 +6258,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1alpha1api20210101preview-namespacesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6277,8 +6279,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1alpha1api20210101preview-namespacestopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6298,8 +6300,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1beta20210101preview-namespace
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6319,8 +6321,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1beta20210101preview-namespacesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6340,8 +6342,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1beta20210101preview-namespacestopic
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6361,8 +6363,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1beta20210101preview-namespacestopicssubscription
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6382,8 +6384,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-servicebus-azure-com-v1beta20210101preview-namespacestopicssubscriptionsrule
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6403,8 +6405,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-signalrservice-azure-com-v1alpha1api20211001-signalr
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6424,8 +6426,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-signalrservice-azure-com-v1beta20211001-signalr
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6445,8 +6447,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6466,8 +6468,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccountsblobservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6487,8 +6489,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccountsblobservicescontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6508,8 +6510,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccountsmanagementpolicy
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6529,8 +6531,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccountsqueueservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6550,8 +6552,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1alpha1api20210401-storageaccountsqueueservicesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6571,8 +6573,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccount
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6592,8 +6594,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccountsblobservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6613,8 +6615,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccountsblobservicescontainer
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6634,8 +6636,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccountsmanagementpolicy
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6655,8 +6657,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccountsqueueservice
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6676,8 +6678,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-storage-azure-com-v1beta20210401-storageaccountsqueueservicesqueue
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6697,8 +6699,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-subscription-azure-com-v1beta20211001-alias
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6718,8 +6720,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-web-azure-com-v1beta20220301-serverfarm
     failurePolicy: Fail
     matchPolicy: Exact
@@ -6739,8 +6741,8 @@ webhooks:
       - v1
     clientConfig:
       service:
-        name: azureserviceoperator-webhook-service
-        namespace: azureserviceoperator-system
+        namespace: system-azure-operator
+        name: controller
         path: /validate-web-azure-com-v1beta20220301-site
     failurePolicy: Fail
     matchPolicy: Exact

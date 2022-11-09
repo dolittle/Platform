@@ -4,50 +4,30 @@ kind: Service
 metadata:
   labels:
     control-plane: controller-manager
-  name: azureserviceoperator-controller-manager-metrics-service
-  namespace: azureserviceoperator-system
+  namespace: system-azure-operator
+  name: controller
 spec:
   ports:
-    - name: metrics
+    - name: http-metrics
       port: 8080
-  selector:
-    control-plane: controller-manager
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    control-plane: controller-manager
-  name: azureserviceoperator-proxy-service
-  namespace: azureserviceoperator-system
-spec:
-  ports:
-    - name: https
+      targetPort: http-metrics
+    - name: proxy
       port: 8443
-      targetPort: https
+      targetPort: proxy
+    - name: webhooks
+      port: 443
+      targetPort: webhooks
   selector:
     control-plane: controller-manager
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: azureserviceoperator-webhook-service
-  namespace: azureserviceoperator-system
-spec:
-  ports:
-    - port: 443
-      targetPort: 9443
-  selector:
-    control-plane: controller-manager
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: azure-service-operator-v2
     control-plane: controller-manager
-  name: azureserviceoperator-controller-manager
-  namespace: azureserviceoperator-system
+  namespace: system-azure-operator
+  name: controller
 spec:
   replicas: 1
   selector:
@@ -55,97 +35,45 @@ spec:
       control-plane: controller-manager
   template:
     metadata:
-      annotations:
-        kubectl.kubernetes.io/default-container: manager
       labels:
-        aadpodidbinding: aso-manager-binding
         control-plane: controller-manager
     spec:
+      serviceAccountName: controller
+      terminationGracePeriodSeconds: 10
       containers:
-        - args:
+        - name: controller
+          image: mcr.microsoft.com/k8s/azureserviceoperator:v2.0.0-beta.3
+          imagePullPolicy: IfNotPresent
+          args:
             - --metrics-addr=:8080
             - --health-addr=:8081
             - --enable-leader-election
             - --v=2
           env:
-            - name: AZURE_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_CLIENT_ID
-                  name: aso-controller-settings
-            - name: AZURE_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_CLIENT_SECRET
-                  name: aso-controller-settings
-                  optional: true
-            - name: AZURE_TENANT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_TENANT_ID
-                  name: aso-controller-settings
-            - name: AZURE_SUBSCRIPTION_ID
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_SUBSCRIPTION_ID
-                  name: aso-controller-settings
-            - name: AZURE_AUTHORITY_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_AUTHORITY_HOST
-                  name: aso-controller-settings
-                  optional: true
-            - name: AZURE_RESOURCE_MANAGER_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_RESOURCE_MANAGER_ENDPOINT
-                  name: aso-controller-settings
-                  optional: true
-            - name: AZURE_RESOURCE_MANAGER_AUDIENCE
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_RESOURCE_MANAGER_AUDIENCE
-                  name: aso-controller-settings
-                  optional: true
             - name: AZURE_TARGET_NAMESPACES
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_TARGET_NAMESPACES
-                  name: aso-controller-settings
-                  optional: true
+              value: ""
             - name: AZURE_OPERATOR_MODE
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_OPERATOR_MODE
-                  name: aso-controller-settings
-                  optional: true
+              value: "watchers-and-webhooks"
             - name: AZURE_SYNC_PERIOD
-              valueFrom:
-                secretKeyRef:
-                  key: AZURE_SYNC_PERIOD
-                  name: aso-controller-settings
-                  optional: true
+              value: "1h"
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          image: mcr.microsoft.com/k8s/azureserviceoperator:v2.0.0-beta.3
-          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: credentials
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8081
-          name: manager
+              port: liveness
           ports:
             - containerPort: 9443
-              name: webhook-server
-              protocol: TCP
+              name: webhooks
             - containerPort: 8081
-              name: liveness-port
-              protocol: TCP
+              name: liveness
             - containerPort: 8080
-              name: metrics-port
-              protocol: TCP
+              name: http-metrics
           resources:
             limits:
               cpu: 500m
@@ -155,24 +83,21 @@ spec:
               memory: 256Mi
           volumeMounts:
             - mountPath: /tmp/k8s-webhook-server/serving-certs
-              name: cert
+              name: certificate
               readOnly: true
-        - args:
+        - name: kube-rbac-proxy
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0
+          imagePullPolicy: IfNotPresent
+          args:
             - --secure-listen-address=0.0.0.0:8443
             - --upstream=http://127.0.0.1:8080/
             - --logtostderr=true
             - --v=10
-          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.0
-          name: kube-rbac-proxy
           ports:
             - containerPort: 8443
-              name: https
-      nodeSelector:
-        kubernetes.io/os: linux
-      serviceAccountName: azureserviceoperator-default
-      terminationGracePeriodSeconds: 10
+              name: proxy
       volumes:
-        - name: cert
+        - name: certificate
           secret:
             defaultMode: 420
             secretName: webhook-server-cert
