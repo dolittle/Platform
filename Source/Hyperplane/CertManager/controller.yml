@@ -1,0 +1,193 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Controller
+  namespace: system-cert-manager
+  name: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      system: Cert-Manager
+      component: Controller
+  template:
+    metadata:
+      labels:
+        system: Cert-Manager
+        component: Controller
+    spec:
+      serviceAccountName: controller
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: controller
+          image: "quay.io/jetstack/cert-manager-controller:v1.10.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --v=2
+            - --cluster-resource-namespace=$(POD_NAMESPACE)
+            - --leader-election-namespace=system-cert-manager
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Controller
+  namespace: system-cert-manager
+  name: controller
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    system: Cert-Manager
+    component: CA-Injector
+  name: system-cert-manager-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system-cert-manager-controller
+subjects:
+  - kind: ServiceAccount
+    namespace: system-cert-manager
+    name: controller
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    system: Cert-Manager
+    component: CA-Injector
+  name: system-cert-manager-controller
+rules:
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+    
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "delete", "update"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses/finalizers"]
+    verbs: ["update"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["gateways", "httproutes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [ "gateway.networking.k8s.io" ]
+    resources: [ "httproutes" ]
+    verbs: ["get", "list", "watch", "create", "delete", "update"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["gateways/finalizers", "httproutes/finalizers"]
+    verbs: ["update"]
+    
+  - apiGroups: ["route.openshift.io"]
+    resources: ["routes/custom-host"]
+    verbs: ["create"]
+    
+  - apiGroups: ["certificates.k8s.io"]
+    resources: ["certificatesigningrequests"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["certificates.k8s.io"]
+    resources: ["certificatesigningrequests/status"]
+    verbs: ["update", "patch"]
+  - apiGroups: ["certificates.k8s.io"]
+    resources: ["signers"]
+    resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+    verbs: ["sign"]
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["subjectaccessreviews"]
+    verbs: ["create"]
+    
+  - apiGroups: ["cert-manager.io"]
+    resources: ["signers"]
+    verbs: ["approve"]
+    resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+    
+  - apiGroups: ["cert-manager.io"]
+    resources: ["issuers", "clusterissuers"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["issuers", "issuers/status", "clusterissuers", "clusterissuers/status"]
+    verbs: ["update", "patch"]
+    
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates", "certificaterequests"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates", "certificates/status", "certificaterequests", "certificaterequests/status"]
+    verbs: ["update", "patch"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates/finalizers", "certificaterequests/finalizers"]
+    verbs: ["update"]
+    
+  - apiGroups: ["acme.cert-manager.io"]
+    resources: ["orders", "challenges"]
+    verbs: ["create", "delete", "get", "list", "watch"]
+  - apiGroups: ["acme.cert-manager.io"]
+    resources: ["orders", "orders/status", "challenges", "challenges/status"]
+    verbs: ["update", "patch"]
+  - apiGroups: ["acme.cert-manager.io"]
+    resources: ["orders/finalizers", "challenges/finalizers"]
+    verbs: ["update"]
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Controller
+  namespace: system-cert-manager
+  name: controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: controller
+subjects:
+  - kind: ServiceAccount
+    namespace: system-cert-manager
+    name: controller
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Controller
+  namespace: system-cert-manager
+  name: controller
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    resourceNames: ["cert-manager-controller"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["create"]

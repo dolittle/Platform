@@ -1,0 +1,248 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  name: system-cert-manager
+  annotations:
+    cert-manager.io/inject-ca-from-secret: "system-cert-manager/cert-manager-webhook-ca"
+webhooks:
+  - name: webhook.cert-manager.io
+    rules:
+      - apiGroups:
+          - "cert-manager.io"
+          - "acme.cert-manager.io"
+        apiVersions:
+          - "v1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - "*/*"
+    admissionReviewVersions: ["v1"]
+    matchPolicy: Equivalent
+    timeoutSeconds: 10
+    failurePolicy: Fail
+    sideEffects: None
+    clientConfig:
+      service:
+        namespace: system-cert-manager
+        name: webhooks
+        path: /mutate
+        
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  name: system-cert-manager
+  annotations:
+    cert-manager.io/inject-ca-from-secret: "system-cert-manager/cert-manager-webhook-ca"
+webhooks:
+  - name: webhook.cert-manager.io
+    namespaceSelector:
+      matchExpressions:
+        - key: "cert-manager.io/disable-validation"
+          operator: "NotIn"
+          values:
+            - "true"
+        - key: "name"
+          operator: "NotIn"
+          values:
+            - cert-manager
+    rules:
+      - apiGroups:
+          - "cert-manager.io"
+          - "acme.cert-manager.io"
+        apiVersions:
+          - "v1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - "*/*"
+    admissionReviewVersions: ["v1"]
+    matchPolicy: Equivalent
+    timeoutSeconds: 10
+    failurePolicy: Fail
+    sideEffects: None
+    clientConfig:
+      service:
+        namespace: system-cert-manager
+        name: webhooks
+        path: /validate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  namespace: system-cert-manager
+  name: webhooks
+spec:
+  selector:
+    system: Cert-Manager
+    component: Webhooks
+  ports:
+    - name: https
+      port: 443
+      targetPort: https
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  namespace: system-cert-manager
+  name: webhooks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      system: Cert-Manager
+      component: Webhooks
+  template:
+    metadata:
+      labels:
+        system: Cert-Manager
+        component: Webhooks
+    spec:
+      serviceAccountName: webhooks
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: webhooks
+          image: "quay.io/jetstack/cert-manager-webhook:v1.10.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --v=2
+            - --secure-port=10250
+            - --dynamic-serving-ca-secret-namespace=$(POD_NAMESPACE)
+            - --dynamic-serving-ca-secret-name=cert-manager-webhook-ca
+            - --dynamic-serving-dns-names=cert-manager-webhook
+            - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE)
+            - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE).svc
+          ports:
+            - name: https
+              protocol: TCP
+              containerPort: 10250
+            - name: healthcheck
+              protocol: TCP
+              containerPort: 6080
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 6080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 6080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  namespace: system-cert-manager
+  name: webhooks
+automountServiceAccountToken: true
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  name: system-cert-manager-webhooks
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system-cert-manager-webhooks
+subjects:
+  - kind: ServiceAccount
+    namespace: system-cert-manager
+    name: webhooks
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  name: system-cert-manager-webhooks
+rules:
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["subjectaccessreviews"]
+    verbs: ["create"]
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  namespace: system-cert-manager
+  name: webhooks
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: webhooks
+subjects:
+  - kind: ServiceAccount
+    namespace: system-cert-manager
+    name: webhooks
+    
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    system: Cert-Manager
+    component: Webhooks
+  namespace: system-cert-manager
+  name: webhooks
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["cert-manager-webhook-ca"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
